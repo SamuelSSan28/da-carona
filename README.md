@@ -1,70 +1,44 @@
-# Getting Started with Create React App
+BASE: #62D0C6
+HOVER: #81d9d1
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+# Dá carona
+- WebApp
+- React + Firebase
 
-In the project directory, you can run:
+Muitas pessoas dependem de carona para ir para o trabalho, faculdade ou eventos, e este webapp vem para simplificar o processo de oferecer/pedir carona.
 
-### `npm start`
+    Através de uma interface simples os destinos são criados, os caroneiros e os interessados em caronas se registram e combinam facilmente suas idas e vindas.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+# Primeira versão
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+O usuário poderá criar sua conta (usando seu numero de celular) e verá quais eventos existem, que são para os quais as pessoas darão carona.
 
-### `npm test`
+## Criar conta
+- Ao acessar o webapp, solicitar que crie a conta usando a autenticação por telefone do firebase
+- Após confirmar o telefone, informar nome completo, e avançar
+- Salvar nome e telefone do usuário em `/users/{uid}/name` e `/users/{uid}/phone`
+- Assim que conseguir confirmar a conta, ir para a tela inicial
+- Ao fechar o webapp e abrir novamente, se já tiver conta ir para tela inicial, senão, para tela de registro
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Tela inicial - eventos
+- Na tela inicial listar os eventos futuros, o mais próximo no alto
+- Se não houver eventos, apresentar "Sem eventos futuros"
+- Ter um botão "Criar evento", que irá apresentar o formulário
+- Preencher Título, Data, Hora e Local. Exemplo: "MBA FGV", "4 de Novembro", "13:30", "FGV Passos". Salvar e voltar para a tela inicial, onde o novo evento aparecerá na lista
 
-### `npm run build`
+## Entregavel
+- Ser web app, instalável
+- Usar apenas firebase para dados, usar firestore
+- Publicar online (vercel, heroku, firebase hosting)
+- Criar um repositório privado e me convidar nele (tiagogouvea)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+# Próximas versões
+- Oferecer carona para um evento
+- Pedir carona para um evento
+- Confirmar carona para um evento
+- Enviar notificações
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+# Segunda versão
+- Ao clicar em um evento, ir para rota do evento, apresentando Título, data e hora, e local
+- Logo abaixo ter duas abas "Dar carona" e "Pedir carona"
