@@ -1,6 +1,6 @@
-BASE: #62D0C6
-HOVER: #81d9d1
-
+<h1 align="center">
+    <img alt="logo" title="logo" src="https://i.imgur.com/0sy4Fxc.png" width="300"/>
+</h1>
 
 # Dá carona
 - WebApp
