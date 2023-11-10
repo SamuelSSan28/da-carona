@@ -16,10 +16,12 @@ import {
     InputLeftAddon,
 } from '@chakra-ui/react'
 
-
 export default function SignIn({
-    setIsLogin
+    setStep,
+    handleValidatioStep,
+    onChange
 }) {
+
     return (
         <Flex
             minH={'100vh'}
@@ -50,13 +52,15 @@ export default function SignIn({
                             <FormLabel>Telefone</FormLabel>
                             <InputGroup>
                                 <InputLeftAddon children='+55' />
-                                <Input type='tel' pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"  />
+                                <Input name='phone' type='tel' pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" onChange={onChange} />
                             </InputGroup>
                         </FormControl>
 
 
                         <Stack spacing={10} pt={2}>
                             <Button
+                                id="sign-in-button"
+                                onClick={handleValidatioStep}
                                 loadingText="Submitting"
                                 size="lg"
                                 bg={'#62D0C6'}
@@ -68,7 +72,7 @@ export default function SignIn({
                             </Button>
                         </Stack>
                         <Stack pt={6}>
-                            <Text align={'center'} onClick={( e => setIsLogin(false))}>
+                            <Text align={'center'} onClick={( e => setStep(1))}>
                                 Não é cadastrado? <Link color={'#62D0C6'}>Cadastre-se</Link>
                             </Text>
                         </Stack>

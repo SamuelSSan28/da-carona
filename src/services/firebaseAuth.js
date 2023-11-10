@@ -1,49 +1,75 @@
-import firebase from "firebase/app";
-import "firebase/auth";
+import { initializeApp } from "firebase/app";
+import { getAuth, signInWithPhoneNumber } from "firebase/auth";
+import { getFirestore, doc, setDoc, query, where } from "firebase/firestore";
 
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID",
+  apiKey: process.env.REACT_APP_API_KEY,
+  authDomain: process.env.REACT_APP_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_APP_ID,
+  measurementId: process.env.REACT_APP_MEASUREMENT_ID,
 };
 
-// Inicialize o Firebase
-firebase.initializeApp(firebaseConfig);
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+auth.useDeviceLanguage();
+const firestore = getFirestore(firebaseApp);
 
-const handleSendCode = () => {
-    const recaptchaVerifier = new firebase.auth.RecaptchaVerifier("recaptcha-container");
-    firebase
-        .auth()
-        .signInWithPhoneNumber(phoneNumber, recaptchaVerifier)
-        .then((confirmationResult) => {
-            // O código de verificação foi enviado com sucesso.
-            const verificationId = confirmationResult.verificationId;
-            // Continue o processo com o código de verificação.
-        })
-        .catch((error) => {
-            console.error(error);
-        });
+const sendSMSCode = async (phone) => {
+  try {
+    const appVerifier = window.recaptchaVerifier;
+
+    const confirmationResult = await signInWithPhoneNumber(
+      auth,
+      phone,
+      appVerifier
+    );
+
+    return confirmationResult;
+  } catch (error) {
+    console.error("Erro ao registrar:", error);
+  }
 };
 
-const handleVerifyCode = () => {
-    const credential = firebase.auth.PhoneAuthProvider.credential(verificationId, code);
-    firebase
-        .auth()
-        .signInWithCredential(credential)
-        .then((user) => {
-            // O usuário está autenticado com sucesso.
-            console.log("Usuário autenticado:", user);
-        })
-        .catch((error) => {
-            console.error(error);
-        });
+const handleLogin = async (verificationCode, confirmationResult) => {
+  try {
+    await confirmationResult.confirm(verificationCode);
+    window.location.href = "/eventos";
+  } catch (error) {
+    console.error("Erro ao fazer login:", error);
+  }
 };
 
+const handleRegister = async (
+  name,
+  phone,
+  confirmationResult,
+  verificationCode
+) => {
+  try {
+    const userCredential = await confirmationResult.confirm(verificationCode);
 
-export {
-    handleSendCode,
-    handleVerifyCode
-}
+    if (!userCredential?.user?.uid) {
+      return;
+    }
+
+    const docRef = doc(firestore, "users", userCredential.user.uid);
+
+    await setDoc(docRef, { name, phone }, { merge: true });
+
+    window.location.href = "/eventos";
+  } catch (error) {
+    console.error("Erro ao registrar:", error);
+  }
+};
+
+const getEvents = async () => {
+  const eventssRef = collection(firestore, "cities");
+
+  // Create a query against the collection.
+  const q = query(eventssRef, where("state", "==", "CA"));
+};
+
+export { auth, handleLogin, handleRegister, sendSMSCode };
