@@ -74,10 +74,10 @@ export default function CodeValidation({ form, utils }) {
               else if (utils.stepBefore === 1)
                 handleRegister(form.name, form.phone, utils.confirm, code);
             }}
-            bg={"blue.400"}
+            bg={"#62D0C6"}
             color={"white"}
             _hover={{
-              bg: "blue.500",
+              bg: "#81d9d1",
             }}
           >
             Avançar

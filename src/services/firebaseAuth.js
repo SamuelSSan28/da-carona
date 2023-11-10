@@ -1,6 +1,15 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, signInWithPhoneNumber } from "firebase/auth";
-import { getFirestore, doc, setDoc, query, where } from "firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  query,
+  where,
+  collection,
+  getDocs,
+} from "firebase/firestore";
+import { v4 as uuidv4 } from 'uuid';
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_API_KEY,
@@ -65,11 +74,33 @@ const handleRegister = async (
   }
 };
 
-const getEvents = async () => {
-  const eventssRef = collection(firestore, "cities");
+const createEvent = async (title, date, hour, location, user) => {
+  try {
+    const docRef = doc(firestore, "events", uuidv4());
+
+    await setDoc(
+      docRef,
+      { title, date, hour, location, user },
+      { merge: true }
+    );
+
+  } catch (error) {
+    console.error("Erro ao salvar evento:", error);
+  }
+};
+
+const getEvents = async (dateStart,dateEnd) => {
+  const eventssRef = collection(firestore, "events");
 
   // Create a query against the collection.
   const q = query(eventssRef, where("state", "==", "CA"));
+
+  const querySnapshot = await getDocs(q);
+
+  querySnapshot.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    console.log(doc.id, " => ", doc.data());
+  });
 };
 
-export { auth, handleLogin, handleRegister, sendSMSCode };
+export { auth, handleLogin, handleRegister, sendSMSCode, createEvent, getEvents };

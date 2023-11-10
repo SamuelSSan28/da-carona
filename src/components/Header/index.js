@@ -21,7 +21,11 @@ import {
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import Logo from "../../assets/logo.png";
 
-const Links = ["Eventos", "outro link", "outro link"];
+const Links = [
+  { label: "Eventos", url: "events" },
+  { label: "outro link", url: "#" },
+  { label: "outro link", url: "#" },
+];
 
 const NavLink = (props) => {
   const { children } = props;
@@ -37,7 +41,7 @@ const NavLink = (props) => {
         textDecoration: "none",
         bg: useColorModeValue("gray.200", "gray.700"),
       }}
-      href={"#"}
+      href={props.url}
     >
       {children}
     </Box>
@@ -65,7 +69,7 @@ export default function Simple() {
           </Box>
           <HStack as={"nav"} spacing={4} display={{ base: "none", md: "flex" }}>
             {Links.map((link) => (
-              <NavLink key={link}>{link}</NavLink>
+              <NavLink key={link.label} url={link.url}>{link.label}</NavLink>
             ))}
           </HStack>
         </HStack>
@@ -79,12 +83,7 @@ export default function Simple() {
               cursor={"pointer"}
               minW={0}
             >
-              <Avatar
-                size={"sm"}
-                src={
-                  "https://i.imgur.com/MYTNMWl.pngw"
-                }
-              />  
+              <Avatar size={"sm"} src={"https://i.imgur.com/MYTNMWl.pngw"} />
             </MenuButton>
             <MenuList>
               <MenuItem>Conta</MenuItem>
@@ -100,7 +99,7 @@ export default function Simple() {
         <Box pb={4} display={{ md: "none" }}>
           <Stack as={"nav"} spacing={4}>
             {Links.map((link) => (
-              <NavLink key={link}>{link}</NavLink>
+              <NavLink key={link.label} url={link.url}>{link.label}</NavLink>
             ))}
           </Stack>
         </Box>

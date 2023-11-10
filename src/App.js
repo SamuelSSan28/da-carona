@@ -5,6 +5,7 @@ import { RecaptchaVerifier } from "firebase/auth";
 import { auth } from "./services/firebaseAuth";
 import Auth from "./views/Auth";
 import Home from "./views/Home";
+import Events from "./views/Events";
 
 function App() {
   useLayoutEffect(() => {
@@ -31,6 +32,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/events" element={<Events />} />
 
           {/* Outras rotas */}
         </Routes>

@@ -59,7 +59,7 @@ export default function Home() {
           >
             <Button
               as="a"
-              href={"/eventos"}
+              href={"/auth"}
               rounded={"full"}
               size={"lg"}
               fontWeight={"normal"}
