@@ -1,6 +1,11 @@
-// service-worker.js
+/* eslint-disable no-restricted-globals */
+
+import { precacheAndRoute } from 'workbox-precaching';
 
 const CACHE_NAME = 'da-carona-app';
+
+// Esta é a parte crucial onde __WB_MANIFEST é usado
+precacheAndRoute(self.__WB_MANIFEST);
 
 self.addEventListener('install', event => {
   event.waitUntil(

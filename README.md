@@ -8,7 +8,7 @@
 
 Muitas pessoas dependem de carona para ir para o trabalho, faculdade ou eventos, e este webapp vem para simplificar o processo de oferecer/pedir carona.
 
-    Através de uma interface simples os destinos são criados, os caroneiros e os interessados em caronas se registram e combinam facilmente suas idas e vindas.
+Através de uma interface simples os destinos são criados, os caroneiros e os interessados em caronas se registram e combinam facilmente suas idas e vindas.
 
 # Primeira versão
 
