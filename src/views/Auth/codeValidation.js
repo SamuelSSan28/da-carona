@@ -16,6 +16,7 @@ export default function CodeValidation({ form, utils }) {
 
   return (
     <Flex
+      maxW={"100%"}
       minH={"100vh"}
       align={"center"}
       justify={"center"}
