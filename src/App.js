@@ -7,6 +7,7 @@ import Auth from "./views/Auth";
 import Home from "./views/Home";
 import Events from "./views/Events";
 import { UserContext } from "./context/user";
+import CreateEvent from "./views/CreateEvent";
 
 function App() {
   const { token } = useContext(UserContext);
@@ -38,6 +39,7 @@ function App() {
             <>
               <Route path="/" element={<Home />} />
               <Route path="/events" element={<Events />} />
+              <Route path="/create-event" element={<CreateEvent />} />
             </>
           ) : (
             <>

@@ -9,13 +9,13 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { firestore } from "./firebase";
 
-const createEvent = async (title, date, hour, location, user) => {
+const createEvent = async ({title, date, hour, location, user}) => {
   try {
     const docRef = doc(firestore, "events", uuidv4());
 
     await setDoc(
       docRef,
-      { title, date, hour, location, user },
+      { title, date, hour, location, },
       { merge: true }
     );
   } catch (error) {
