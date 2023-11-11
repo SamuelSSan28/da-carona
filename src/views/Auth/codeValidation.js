@@ -16,10 +16,10 @@ export default function CodeValidation({ form, utils }) {
 
   return (
     <Flex
-      maxW={"100%"}
-      minH={"100vh"}
-      align={"center"}
-      justify={"center"}
+    maxW={"100%"}
+    align={"center"}
+    justify={"center"}
+    p={4}
       bg={useColorModeValue("gray.50", "gray.800")}
     >
       <Stack
