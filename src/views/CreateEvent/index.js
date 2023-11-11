@@ -7,9 +7,11 @@ import {
   Input,
   Button,
   SimpleGrid,
+  Image,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { createEvent } from "../../services/events";
+import eventImage from "../../assets/create-event.svg";
 
 export default function CreateEvent() {
   const [eventForm, setEventForm] = useState({
@@ -39,24 +41,29 @@ export default function CreateEvent() {
       maxW={"7xl"}
       maxH={"92vh"}
       columns={{ base: 1, md: 2 }}
-      spacing={{ base: 10, lg: 32 }}
+      spacing={{ base: 10, lg: 12 }}
       py={10}
     >
-      <Stack spacing={{ base: 10, md: 20 }}>
+      <Stack  spacing={{ base: 10, md: 20 }}>
         <Heading
           lineHeight={1.1}
           fontSize={{ base: "3xl", sm: "4xl", md: "5xl", lg: "6xl" }}
+          color="#62D0C6"
         >
-          Explorando Novos Horizontes{" "}
-          <Text
-            as={"span"}
-            bgGradient="linear(to-r, #62D0C6, #62D0C6)"
-            bgClip="text"
-          >
-            &
-          </Text>{" "}
-          Viagens Inesquecíveis
+          Criar Evento
         </Heading>
+
+        <Image
+          alt={"Hero Image"}
+          fit={"cover"}
+          align={"center"}
+          maxW={"100%"} // Adicionado para garantir que a largura não ultrapasse o contêiner
+          maxH={"100%"} // Adicionado para garantir que a altura não ultrapasse o contêiner
+          w={"80%"}
+          h={"70%"}
+          m={5}
+          src={eventImage}
+        />
       </Stack>
       <Stack
         bg={"gray.50"}
