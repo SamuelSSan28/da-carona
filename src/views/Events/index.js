@@ -1,4 +1,4 @@
-import { ArrowForwardIcon } from "@chakra-ui/icons";
+import { useEffect, useState } from "react";
 import {
   Box,
   Heading,
@@ -9,65 +9,36 @@ import {
   Button,
   SimpleGrid,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { ArrowForwardIcon } from "@chakra-ui/icons";
 import {
   Card,
   CardContent,
   CardHeading,
   CardText,
 } from "../../components/EventCard";
+import { getEvents } from "../../services/events";
 
 export default function Events() {
-  const [events, setEvents] = useState([
-    {
-      title: "MBA FGV",
-      date: "4 de novembro",
-      hour: "13:00",
-      location: "FGV passos",
-    },
-    {
-      title: "MBA FGV",
-      date: "4 de novembro",
-      hour: "13:00",
-      location: "FGV passos",
-    },
-    {
-      title: "MBA FGV",
-      date: "4 de novembro",
-      hour: "13:00",
-      location: "FGV passos",
-    },
-    {
-      title: "MBA FGV",
-      date: "4 de novembro",
-      hour: "13:00",
-      location: "FGV passos",
-    },
-    {
-      title: "MBA FGV",
-      date: "4 de novembro",
-      hour: "13:00",
-      location: "FGV passos",
-    },
-    {
-      title: "MBA FGV",
-      date: "4 de novembro",
-      hour: "13:00",
-      location: "FGV passos",
-    },
-    {
-      title: "MBA FGV",
-      date: "4 de novembro",
-      hour: "13:00",
-      location: "FGV passos",
-    },
-  ]);
+  const [events, setEvents] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const events_ = await getEvents();
+        setEvents(events_);
+      } catch (error) {
+        console.error('Erro ao buscar eventos:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
-    <Box h="100%">
+    <Box  >
       <Container
         maxW={"7xl"}
-        py={16}
+        py={14}
         pb={0}
         as={Stack}
         spacing={12}
@@ -128,10 +99,10 @@ export default function Events() {
           <Heading size="lg">Eventos:</Heading>
         </Stack>
 
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
-          {events.length > 0 ? (
-            events.map((event) => (
-              <Card as={"a"} href={"/gogo"}>
+        {events.length > 0 ? (
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
+            {events.map((event) => (
+              <Card as={"a"} href={"#"} key={event.id} >
                 <CardContent
                   align={"left"}
                   _hover={{
@@ -149,16 +120,16 @@ export default function Events() {
                   </CardText>
                 </CardContent>
               </Card>
-            ))
-          ) : (
-            <Box w="100%" textAlign={"center"}>
-              <Text>
+            ))}
+          </SimpleGrid>
+        ) : (
+          <Box w="100%" textAlign={"center"}>
+            <Text>
               Sem eventos futuros
-                <Heading>😔</Heading>
-              </Text>
-            </Box>
-          )}
-        </SimpleGrid>
+              <Heading>😔</Heading>
+            </Text>
+          </Box>
+        )}
       </Container>
     </Box>
   );

@@ -7,6 +7,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
+import { firestore } from "./firebase";
 
 const createEvent = async (title, date, hour, location, user) => {
   try {
@@ -23,17 +24,16 @@ const createEvent = async (title, date, hour, location, user) => {
 };
 
 const getEvents = async (dateStart, dateEnd) => {
-  const eventssRef = collection(firestore, "events");
+  const eventsRef = collection(firestore, "events");
 
-  // Create a query against the collection.
-  const q = query(eventssRef, where("name", "!=", ""));
+  const querySnapshot = await getDocs(eventsRef);
 
-  const querySnapshot = await getDocs(q);
+  const eventsList = querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data()
+  }));
 
-  querySnapshot.forEach((doc) => {
-    // doc.data() is never undefined for query doc snapshots
-    console.log(doc.id, " => ", doc.data());
-  });
+  return eventsList;
 };
 
 export { createEvent, getEvents };
