@@ -13,13 +13,14 @@ import { handleLogin, handleRegister } from "../../services/firebaseAuth";
 
 export default function CodeValidation({ form, utils }) {
   const [code, setCode] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
     <Flex
-    maxW={"100%"}
-    align={"center"}
-    justify={"center"}
-    p={4}
+      maxW={"100%"}
+      align={"center"}
+      justify={"center"}
+      p={4}
       bg={useColorModeValue("gray.50", "gray.800")}
     >
       <Stack
@@ -70,10 +71,18 @@ export default function CodeValidation({ form, utils }) {
         </FormControl>
         <Stack spacing={6}>
           <Button
-            onClick={(e) => {
-              if (utils.stepBefore === 0) handleLogin(code, utils.confirm);
-              else if (utils.stepBefore === 1)
-                handleRegister(form.name, form.phone, utils.confirm, code);
+            isLoading={isLoading}
+            onClick={async (e) => {
+              if (utils.stepBefore === 0) {
+                await handleLogin(code, utils.confirm);
+              } else if (utils.stepBefore === 1) {
+                await handleRegister(
+                  form.name,
+                  form.phone,
+                  utils.confirm,
+                  code
+                );
+              }
             }}
             bg={"#62D0C6"}
             color={"white"}
