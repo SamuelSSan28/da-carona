@@ -1,3 +1,4 @@
+import { useContext, useState } from "react";
 import { Center, Heading } from "@chakra-ui/react";
 import {
   Button,
@@ -6,23 +7,37 @@ import {
   Stack,
   useColorModeValue,
   HStack,
+  PinInput,
+  PinInputField,
 } from "@chakra-ui/react";
-import { PinInput, PinInputField } from "@chakra-ui/react";
-import { useState } from "react";
-import { handleLogin, handleRegister } from "../../services/firebaseAuth";
+import { handleLogin, handleRegister } from "../../services/auth";
+import { UserContext } from "../../context/user";
 
 export default function CodeValidation({ form, utils }) {
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { updateToken } = useContext(UserContext);
+
+  const validation = async () => {
+    setIsLoading(true);
+    if (utils.stepBefore === 0) {
+      const resp = await handleLogin(code, utils.confirm);
+      updateToken(resp?.user?.accessToken);
+    } else if (utils.stepBefore === 1) {
+      const token = await handleRegister(
+        form.name,
+        form.phone,
+        utils.confirm,
+        code
+      );
+      updateToken(token);
+    }
+    setIsLoading(false);
+    //setTimeout(() => (window.location.href = "/"), 500);
+  };
 
   return (
-    <Flex
-      maxW={"100%"}
-      align={"center"}
-      justify={"center"}
-      p={4}
-      bg={useColorModeValue("gray.50", "gray.800")}
-    >
+    <Flex maxW={"100%"} minH={"92vh"} align={"center"} justify={"center"} p={4}>
       <Stack
         spacing={4}
         w={"full"}
@@ -72,18 +87,7 @@ export default function CodeValidation({ form, utils }) {
         <Stack spacing={6}>
           <Button
             isLoading={isLoading}
-            onClick={async (e) => {
-              if (utils.stepBefore === 0) {
-                await handleLogin(code, utils.confirm);
-              } else if (utils.stepBefore === 1) {
-                await handleRegister(
-                  form.name,
-                  form.phone,
-                  utils.confirm,
-                  code
-                );
-              }
-            }}
+            onClick={validation}
             bg={"#62D0C6"}
             color={"white"}
             _hover={{

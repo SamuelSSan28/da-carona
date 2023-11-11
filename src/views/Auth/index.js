@@ -2,8 +2,8 @@ import { useState } from "react";
 import SignUp from "./signUp";
 import SignIn from "./signIn";
 import CodeValidation from "./codeValidation";
-import { sendSMSCode } from "../../services/firebaseAuth";
-
+import { sendSMSCode } from "../../services/auth";
+ 
 /*
  Steps
   0 - login

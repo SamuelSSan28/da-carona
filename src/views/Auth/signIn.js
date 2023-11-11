@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Flex,
   Box,
@@ -20,9 +18,10 @@ export default function SignIn({ setStep, handleValidatioStep, onChange }) {
   return (
     <Flex
       maxW={"100%"}
+      minH={"92vh"}
       align={"center"}
       justify={"center"}
-      bg={useColorModeValue("gray.50", "gray.800")}
+     
     >
       <Stack
         align={"center"}
@@ -44,7 +43,7 @@ export default function SignIn({ setStep, handleValidatioStep, onChange }) {
         </Stack>
 
         <Box
-          w={{ base: "100%", md: "25%" }}
+          w={{ base: "100%", md: "35rem" }}
           rounded={"lg"}
           bg={useColorModeValue("white", "gray.700")}
           boxShadow={"lg"}

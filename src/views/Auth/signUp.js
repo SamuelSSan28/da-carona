@@ -15,15 +15,14 @@ import {
   Link,
   InputLeftAddon,
 } from "@chakra-ui/react";
-import { handleRegister } from "../../services/firebaseAuth";
 
-export default function SignUp({ setStep, form, onChange }) {
+export default function SignUp({ setStep, form, onChange, handleValidatioStep }) {
   return (
     <Flex
       maxW={"100%"}
+      minH={"92vh"}
       align={"center"}
       justify={"center"}
-      bg={useColorModeValue("gray.50", "gray.800")}
     >
       <Stack
         align={"center"}
@@ -45,7 +44,7 @@ export default function SignUp({ setStep, form, onChange }) {
         </Stack>
 
         <Box
-          w={{ base: "100%", md: "25%" }}
+          w={{ base: "100%", md: "35rem" }}
           rounded={"lg"}
           bg={useColorModeValue("white", "gray.700")}
           boxShadow={"lg"}
@@ -67,7 +66,7 @@ export default function SignUp({ setStep, form, onChange }) {
 
             <Stack spacing={10} pt={2}>
               <Button
-                onClick={(e) => handleRegister(form.name, form.phone)}
+                onClick={handleValidatioStep}
                 loadingText="Submitting"
                 size="lg"
                 bg={"#62D0C6"}

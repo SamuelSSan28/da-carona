@@ -64,7 +64,7 @@ export default function Events() {
   ]);
 
   return (
-    <Box bg={useColorModeValue("gray.100", "gray.700")} h="100%">
+    <Box h="100%">
       <Container
         maxW={"7xl"}
         py={16}
