@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-import { parse, isValid } from 'date-fns';
+import { parse, isValid } from "date-fns";
 
 export const createUserSchema = Yup.object().shape({
   name: Yup.string().required('Campo "Nome" é obrigatório'),
@@ -12,18 +12,24 @@ export const createUserSchema = Yup.object().shape({
 });
 
 export const createEventSchema = Yup.object().shape({
-  title: Yup.string().required('Campo "Título" é obrigatório'),
+  title: Yup.string()
+    .required('Campo "Título" é obrigatório')
+    .max(35, 'O campo "Título" não pode ter mais de 35 caracteres'),
   date: Yup.string()
     .required('Campo "Data" é obrigatório')
-    .test('date-validation', 'Data inválida', async function (value) {
+    .test("date-validation", "Data inválida", async function (value) {
       const dateFormat = /^\d{2}\/\d{2}\/\d{4}$/;
       if (!dateFormat.test(value)) {
-        throw new Yup.ValidationError('Formato de data inválido', value, 'date-format');
+        throw new Yup.ValidationError(
+          "Formato de data inválido",
+          value,
+          "date-format"
+        );
       }
 
-      const parsedDate = parse(value, 'dd/MM/yyyy', new Date());
+      const parsedDate = parse(value, "dd/MM/yyyy", new Date());
       if (!isValid(parsedDate)) {
-        throw new Yup.ValidationError('Data inválida', value, 'date-valid');
+        throw new Yup.ValidationError("Data inválida", value, "date-valid");
       }
 
       return true;
@@ -31,18 +37,24 @@ export const createEventSchema = Yup.object().shape({
 
   hour: Yup.string()
     .required('Campo "Horário" é obrigatório')
-    .test('time-validation', 'Horário inválido', async function (value) {
+    .test("time-validation", "Horário inválido", async function (value) {
       const timeFormat = /^\d{2}:\d{2}$/;
       if (!timeFormat.test(value)) {
-        throw new Yup.ValidationError('Formato de hora inválido', value, 'time-format');
+        throw new Yup.ValidationError(
+          "Formato de hora inválido",
+          value,
+          "time-format"
+        );
       }
 
-      const [hour, minute] = value.split(':').map(Number);
+      const [hour, minute] = value.split(":").map(Number);
       if (!(hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59)) {
-        throw new Yup.ValidationError('Horário inválido', value, 'time-valid');
+        throw new Yup.ValidationError("Horário inválido", value, "time-valid");
       }
 
       return true;
     }),
-  location: Yup.string().required('Campo "Localização" é obrigatório'),
+  location: Yup.string()
+    .required('Campo "Localização" é obrigatório')
+    .max(45, 'O campo "Localização" não pode ter mais de 45 caracteres'),
 });
