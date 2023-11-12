@@ -1,13 +1,11 @@
 import {
   Container,
   Stack,
-  Flex,
   Box,
   Heading,
   Text,
   Button,
   Image,
-  Icon,
 } from "@chakra-ui/react";
 
 import homeImage from "../../assets/home2.svg";

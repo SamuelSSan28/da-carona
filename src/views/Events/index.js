@@ -5,7 +5,6 @@ import {
   Text,
   Stack,
   Container,
-  useColorModeValue,
   Button,
   SimpleGrid,
 } from "@chakra-ui/react";

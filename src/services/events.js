@@ -1,8 +1,7 @@
 import {
   doc,
   setDoc,
-  query,
-  where,
+
   collection,
   getDocs,
 } from "firebase/firestore";
