@@ -10,6 +10,7 @@ import {
   PinInput,
   PinInputField,
 } from "@chakra-ui/react";
+import { useToast } from '@chakra-ui/react'
 import { handleLogin, handleRegister } from "../../services/auth";
 import { UserContext } from "../../context/user";
 
@@ -17,23 +18,36 @@ export default function CodeValidation({ form, utils }) {
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { updateToken } = useContext(UserContext);
-
+  const toast = useToast();
+  
   const validation = async () => {
-    setIsLoading(true);
-    if (utils.stepBefore === 0) {
-      const resp = await handleLogin(code, utils.confirm);
-      updateToken(resp?.user?.accessToken);
-    } else if (utils.stepBefore === 1) {
-      const token = await handleRegister(
-        form.name,
-        form.phone,
-        utils.confirm,
-        code
-      );
-      updateToken(token);
+    try {
+      setIsLoading(true);
+      if (utils.stepBefore === 0) {
+        const resp = await handleLogin(code, utils.confirm);
+        updateToken(resp?.user?.accessToken);
+      } else if (utils.stepBefore === 1) {
+        const token = await handleRegister(
+          form.name,
+          form.phone,
+          utils.confirm,
+          code
+        );
+        updateToken(token);
+      }
+    } catch (error) {
+      console.error("Erro ao registrar:", error);
+      toast({
+        title: 'Não foi possível enviar o SMS',
+        description: JSON.stringify(error),
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+        position: "bottom",
+      })
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
-    //setTimeout(() => (window.location.href = "/"), 500);
   };
 
   return (

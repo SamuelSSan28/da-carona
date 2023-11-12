@@ -10,6 +10,7 @@ import {
   Image,
 } from "@chakra-ui/react";
 import { useState } from "react";
+import { useToast } from '@chakra-ui/react'
 import { createEvent } from "../../services/events";
 import eventImage from "../../assets/create-event.svg";
 
@@ -20,7 +21,8 @@ export default function CreateEvent() {
     hour: "",
     location: "",
   });
-
+  const toast = useToast();
+  
   const onChange = (event) => {
     setEventForm({
       ...eventForm,
@@ -31,8 +33,25 @@ export default function CreateEvent() {
   const submitForm = async () => {
     try {
       await createEvent(eventForm);
-      setTimeout(() => (window.location.href = "/events"), 500);
-    } catch (error) {}
+      toast({
+        title: 'Evento criado com sucesso!',
+        //description: "We've created your account for you.",
+        status: 'success',
+        duration: 900,
+        isClosable: true,
+      })
+      setTimeout(() => (window.location.href = "/events"), 1000);
+    } catch (error) {
+      console.error("Erro no submitForm:", error);
+      toast({
+        title: 'Não foi possível criar o evento',
+        description: JSON.stringify(error),
+        status: 'error',
+        duration: 9000,
+        position: "bottom",
+        isClosable: true,
+      })
+    }
   };
 
   return (
