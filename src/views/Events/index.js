@@ -7,6 +7,8 @@ import {
   Container,
   Button,
   SimpleGrid,
+  SkeletonCircle,
+  SkeletonText,
 } from "@chakra-ui/react";
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 import {
@@ -19,6 +21,7 @@ import { getEvents } from "../../services/events";
 
 export default function Events() {
   const [events, setEvents] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,7 +29,9 @@ export default function Events() {
         const events_ = await getEvents();
         setEvents(events_);
       } catch (error) {
-        console.error('Erro ao buscar eventos:', error);
+        console.error("Erro ao buscar eventos:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -34,7 +39,7 @@ export default function Events() {
   }, []);
 
   return (
-    <Box  >
+    <Box>
       <Container
         maxW={"7xl"}
         py={0}
@@ -98,10 +103,25 @@ export default function Events() {
           <Heading size="lg">Eventos:</Heading>
         </Stack>
 
+        {isLoading ? (
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
+            {[1, 2, 3, 4].map((e) => (
+              <Box padding="6" boxShadow="lg" bg="white">
+                <SkeletonText
+                  mt="4"
+                  noOfLines={4}
+                  spacing="4"
+                  skeletonHeight="2"
+                />
+              </Box>
+            ))}
+          </SimpleGrid>
+        ) : null}
+
         {events.length > 0 ? (
           <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
             {events.map((event) => (
-              <Card as={"a"} href={"#"} key={event.id} >
+              <Card as={"a"} href={"#"} key={event.id}>
                 <CardContent
                   align={"left"}
                   _hover={{
@@ -121,14 +141,14 @@ export default function Events() {
               </Card>
             ))}
           </SimpleGrid>
-        ) : (
+        ) : !isLoading ? (
           <Box w="100%" textAlign={"center"}>
             <Text>
               Sem eventos futuros
               <Heading>😔</Heading>
             </Text>
           </Box>
-        )}
+        ) : null}
       </Container>
     </Box>
   );
