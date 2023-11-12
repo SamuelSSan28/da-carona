@@ -10,7 +10,7 @@ import {
   PinInput,
   PinInputField,
 } from "@chakra-ui/react";
-import { useToast } from '@chakra-ui/react'
+import { useToast } from "@chakra-ui/react";
 import { handleLogin, handleRegister } from "../../services/auth";
 import { UserContext } from "../../context/user";
 
@@ -19,7 +19,7 @@ export default function CodeValidation({ form, utils }) {
   const [isLoading, setIsLoading] = useState(false);
   const { updateToken } = useContext(UserContext);
   const toast = useToast();
-  
+
   const validation = async () => {
     try {
       setIsLoading(true);
@@ -38,13 +38,13 @@ export default function CodeValidation({ form, utils }) {
     } catch (error) {
       console.error("Erro ao registrar:", error);
       toast({
-        title: 'Não foi possível enviar o SMS',
-        description: JSON.stringify(error),
-        status: 'error',
+        title: "Código inválido!",
+       // description: "JSON.stringify(error)",
+        status: "error",
         duration: 9000,
         isClosable: true,
         position: "bottom",
-      })
+      });
     } finally {
       setIsLoading(false);
     }

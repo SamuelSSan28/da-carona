@@ -12,9 +12,30 @@ import {
   useColorModeValue,
   Link,
   InputLeftAddon,
+  useToast,
 } from "@chakra-ui/react";
+import { createUserSchema } from "../../services/formValidation";
 
-export default function SignIn({ setStep, handleValidatioStep, onChange }) {
+export default function SignIn({ setStep, handleValidatioStep, onChange,phone }) {
+  const toast = useToast();
+
+  const submit = async () => {
+    try {
+      await createUserSchema.validate({phone, name: "name"}, { abortEarly: false });
+      handleValidatioStep();
+    } catch (error) {
+      error.errors.forEach((message) => {
+        toast({
+          title: "Erro de validação",
+          description: message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      });
+    }
+  };
+
   return (
     <Flex
       maxW={"100%"}
@@ -66,7 +87,7 @@ export default function SignIn({ setStep, handleValidatioStep, onChange }) {
             <Stack spacing={10} pt={2}>
               <Button
                 id="sign-in-button"
-                onClick={handleValidatioStep}
+                onClick={submit}
                 loadingText="Submitting"
                 size="lg"
                 bg={"#62D0C6"}

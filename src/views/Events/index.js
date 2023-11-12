@@ -7,7 +7,6 @@ import {
   Container,
   Button,
   SimpleGrid,
-  SkeletonCircle,
   SkeletonText,
 } from "@chakra-ui/react";
 import { ArrowForwardIcon } from "@chakra-ui/icons";
