@@ -9,10 +9,12 @@ import {
   SimpleGrid,
   Image,
 } from "@chakra-ui/react";
+import InputMask from "react-input-mask";
 import { useState } from "react";
-import { useToast } from '@chakra-ui/react'
+import { useToast } from "@chakra-ui/react";
 import { createEvent } from "../../services/events";
 import eventImage from "../../assets/create-event.svg";
+import { createEventSchema } from "../../services/formValidation";
 
 export default function CreateEvent() {
   const [eventForm, setEventForm] = useState({
@@ -22,7 +24,7 @@ export default function CreateEvent() {
     location: "",
   });
   const toast = useToast();
-  
+
   const onChange = (event) => {
     setEventForm({
       ...eventForm,
@@ -32,25 +34,28 @@ export default function CreateEvent() {
 
   const submitForm = async () => {
     try {
+      console.log(eventForm);
+      await createEventSchema.validate(eventForm, { abortEarly: false });
       await createEvent(eventForm);
       toast({
-        title: 'Evento criado com sucesso!',
+        title: "Evento criado com sucesso!",
         //description: "We've created your account for you.",
-        status: 'success',
+        status: "success",
         duration: 900,
         isClosable: true,
-      })
+      });
       setTimeout(() => (window.location.href = "/events"), 1000);
     } catch (error) {
       console.error("Erro no submitForm:", error);
-      toast({
-        title: 'Não foi possível criar o evento',
-        description: JSON.stringify(error),
-        status: 'error',
-        duration: 9000,
-        position: "bottom",
-        isClosable: true,
-      })
+      error.errors.forEach((message) => {
+        toast({
+          title: "Erro de validação",
+          description: message,
+          status: "error",
+          duration: 2000,
+          isClosable: true,
+        });
+      });
     }
   };
 
@@ -63,7 +68,7 @@ export default function CreateEvent() {
       spacing={{ base: 10, lg: 12 }}
       py={10}
     >
-      <Stack  spacing={{ base: 10, md: 20 }}>
+      <Stack spacing={{ base: 10, md: 20 }}>
         <Heading
           lineHeight={1.1}
           fontSize={{ base: "3xl", sm: "4xl", md: "5xl", lg: "6xl" }}
@@ -125,28 +130,46 @@ export default function CreateEvent() {
               }}
               onChange={onChange}
             />
-            <Input
+
+            <InputMask
+              mask="99/99/9999"
               name="date"
-              placeholder="Data"
-              bg={"gray.100"}
-              border={0}
-              color={"gray.500"}
-              _placeholder={{
-                color: "gray.500",
-              }}
               onChange={onChange}
-            />
-            <Input
+              maskChar={null}
+            >
+              {() => (
+                <Input
+                  name="date"
+                  placeholder="Data"
+                  bg={"gray.100"}
+                  border={0}
+                  color={"gray.500"}
+                  _placeholder={{
+                    color: "gray.500",
+                  }}
+                />
+              )}
+            </InputMask>
+
+            <InputMask
+              mask="99:99"
+              maskChar={null}
               name="hour"
-              placeholder="Horario"
-              bg={"gray.100"}
-              border={0}
-              color={"gray.500"}
-              _placeholder={{
-                color: "gray.500",
-              }}
               onChange={onChange}
-            />
+            >
+              {() => (
+                <Input
+                  name="hour"
+                  placeholder="Horario"
+                  bg={"gray.100"}
+                  border={0}
+                  color={"gray.500"}
+                  _placeholder={{
+                    color: "gray.500",
+                  }}
+                />
+              )}
+            </InputMask>
 
             <Input
               name="location"
