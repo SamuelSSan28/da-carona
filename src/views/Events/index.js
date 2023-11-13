@@ -41,7 +41,7 @@ export default function Events() {
     <Box>
       <Container
         maxW={"7xl"}
-        py={0}
+        py={5}
         pb={0}
         as={Stack}
         spacing={12}
