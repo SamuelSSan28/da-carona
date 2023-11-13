@@ -105,7 +105,7 @@ export default function Events() {
         {isLoading ? (
           <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
             {[1, 2, 3, 4].map((e) => (
-              <Box padding="6" boxShadow="lg" bg="white">
+              <Box padding="6" boxShadow="lg" bg="white" key={e}>
                 <SkeletonText
                   mt="4"
                   noOfLines={4}
@@ -120,7 +120,7 @@ export default function Events() {
         {events.length > 0 ? (
           <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
             {events.map((event) => (
-              <Card as={"a"} href={"#"} key={event.id}>
+            <Card as={"a"} href={"#"} key={event.id}>
                 <CardContent
                   align={"left"}
                   _hover={{
@@ -130,7 +130,7 @@ export default function Events() {
                   <CardHeading color={"#62D0C6"}>{event.title}</CardHeading>
 
                   <CardText textAlign={"left"}>
-                    Data e Horario: {event.date} às {event.hour}{" "}
+                    Data e Horario: {event.date}
                   </CardText>
 
                   <CardText textAlign={"left"}>
@@ -144,7 +144,7 @@ export default function Events() {
           <Box w="100%" textAlign={"center"}>
             <Text>
               Sem eventos futuros
-              <Heading>😔</Heading>
+              <Text fontSize={30}>😔</Text>
             </Text>
           </Box>
         ) : null}
