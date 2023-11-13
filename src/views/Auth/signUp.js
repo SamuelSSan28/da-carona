@@ -16,6 +16,7 @@ import {
   InputLeftAddon,
   useToast,
 } from "@chakra-ui/react";
+import InputMask from "react-input-mask";
 import { createUserSchema } from "../../services/formValidation";
 
 export default function SignUp({
@@ -72,16 +73,30 @@ export default function SignUp({
           p={8}
         >
           <Stack spacing={8}>
-            <FormControl id="firstName" isRequired>
+            <FormControl id="name" isRequired>
               <FormLabel>Nome completo</FormLabel>
               <Input type="text" onChange={onChange} name="name" />
             </FormControl>
 
-            <FormControl id="email" isRequired>
+            <FormControl id="phone" isRequired>
               <FormLabel>Telefone</FormLabel>
               <InputGroup>
                 <InputLeftAddon children="+55" />
-                <Input type="tel" name="phone" onChange={onChange} />
+                <InputMask
+                  mask="(99) 99999-9999"
+                  name="phone"
+                  onChange={onChange}
+                  maskChar={null}
+                >
+                  {() => (
+                    <Input
+                      name="phone"
+                      type="tel"
+                      pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"
+                      onChange={onChange}
+                    />
+                  )}
+                </InputMask>
               </InputGroup>
             </FormControl>
 

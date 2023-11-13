@@ -14,14 +14,23 @@ import {
   InputLeftAddon,
   useToast,
 } from "@chakra-ui/react";
+import InputMask from "react-input-mask";
 import { createUserSchema } from "../../services/formValidation";
 
-export default function SignIn({ setStep, handleValidatioStep, onChange,phone }) {
+export default function SignIn({
+  setStep,
+  handleValidatioStep,
+  onChange,
+  phone,
+}) {
   const toast = useToast();
 
   const submit = async () => {
     try {
-      await createUserSchema.validate({phone, name: "name"}, { abortEarly: false });
+      await createUserSchema.validate(
+        { phone, name: "name" },
+        { abortEarly: false }
+      );
       handleValidatioStep();
     } catch (error) {
       error.errors.forEach((message) => {
@@ -37,13 +46,7 @@ export default function SignIn({ setStep, handleValidatioStep, onChange,phone })
   };
 
   return (
-    <Flex
-      maxW={"100%"}
-      minH={"92vh"}
-      align={"center"}
-      justify={"center"}
-     
-    >
+    <Flex maxW={"100%"} minH={"92vh"} align={"center"} justify={"center"}>
       <Stack
         align={"center"}
         justify={"center"}
@@ -75,12 +78,21 @@ export default function SignIn({ setStep, handleValidatioStep, onChange,phone })
               <FormLabel>Telefone</FormLabel>
               <InputGroup>
                 <InputLeftAddon children="+55" />
-                <Input
+                <InputMask
+                  mask="(99) 99999-9999"
                   name="phone"
-                  type="tel"
-                  pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"
                   onChange={onChange}
-                />
+                  maskChar={null}
+                >
+                  {() => (
+                    <Input
+                      name="phone"
+                      type="tel"
+                      pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"
+                      onChange={onChange}
+                    />
+                  )}
+                </InputMask>
               </InputGroup>
             </FormControl>
 
