@@ -8,6 +8,7 @@ import {
   Button,
   SimpleGrid,
   SkeletonText,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 import {
@@ -21,6 +22,7 @@ import { getEvents } from "../../services/events";
 export default function Events() {
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobile] = useMediaQuery("(max-width: 768px)"); // ajuste o valor máximo conforme necessário
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,38 +53,42 @@ export default function Events() {
           <Heading>Aventuras à Vista </Heading>
           <Text>Compartilhe Caronas e Faça Novas Conexões</Text>
         </Stack>
-        <Stack
-          direction={{ base: "column", md: "row" }}
-          spacing={{ base: 10, md: 4, lg: 10 }}
-        >
-          <Card>
-            <CardContent>
-              <CardHeading>Viagens Convenientes</CardHeading>
-              <CardText>
-                Encontre caronas que se alinham com seus destinos e horários.
-              </CardText>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent>
-              <CardHeading>Conheça Novas Pessoas</CardHeading>
-              <CardText>
-                Explore a cidade com companheiros de viagem amigáveis e
-                diversificados.
-              </CardText>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent>
-              <CardHeading>Ecológico e Econômico</CardHeading>
-              <CardText>
-                Ajude o meio ambiente e economize dinheiro ao compartilhar
-                caronas.
-              </CardText>
-            </CardContent>
-          </Card>
-        </Stack>
-
+        {!isMobile && (
+          <>
+            <Stack
+              direction={{ base: "column", md: "row" }}
+              spacing={{ base: 10, md: 4, lg: 10 }}
+            >
+              <Card>
+                <CardContent>
+                  <CardHeading>Viagens Convenientes</CardHeading>
+                  <CardText>
+                    Encontre caronas que se alinham com seus destinos e
+                    horários.
+                  </CardText>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent>
+                  <CardHeading>Conheça Novas Pessoas</CardHeading>
+                  <CardText>
+                    Explore a cidade com companheiros de viagem amigáveis e
+                    diversificados.
+                  </CardText>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent>
+                  <CardHeading>Ecológico e Econômico</CardHeading>
+                  <CardText>
+                    Ajude o meio ambiente e economize dinheiro ao compartilhar
+                    caronas.
+                  </CardText>
+                </CardContent>
+              </Card>
+            </Stack>
+          </>
+        )}
         <Button
           as={"a"}
           href={"/create-event"}
@@ -120,7 +126,7 @@ export default function Events() {
         {events.length > 0 ? (
           <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
             {events.map((event) => (
-            <Card as={"a"} href={"#"} key={event.id}>
+              <Card as={"a"} href={"#"} key={event.id}>
                 <CardContent
                   align={"left"}
                   _hover={{
