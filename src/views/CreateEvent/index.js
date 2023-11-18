@@ -23,6 +23,7 @@ export default function CreateEvent() {
     hour: "",
     location: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
 
   const onChange = (event) => {
@@ -34,7 +35,7 @@ export default function CreateEvent() {
 
   const submitForm = async () => {
     try {
-      console.log(eventForm);
+      setIsLoading(true);
       await createEventSchema.validate(eventForm, { abortEarly: false });
       await createEvent(eventForm);
       toast({
@@ -56,6 +57,8 @@ export default function CreateEvent() {
           isClosable: true,
         });
       });
+    }finally{
+      setTimeout(() =>  setIsLoading(true), 100);
     }
   };
 
@@ -184,6 +187,7 @@ export default function CreateEvent() {
             />
           </Stack>
           <Button
+            isLoading={isLoading}
             onClick={submitForm}
             fontFamily={"heading"}
             mt={8}
