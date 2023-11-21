@@ -7,6 +7,8 @@ import {
   collection,
   getDocs,
   Timestamp,
+  updateDoc,
+  getDoc,
 } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 import { firestore } from "./firebase";
@@ -51,4 +53,20 @@ const getEvents = async () => {
   return eventsList;
 };
 
-export { createEvent, getEvents };
+const updateArrayFieldEvent =async (documentId, newElement,field) => {
+  const docRef = doc(firestore, "events", documentId);
+
+  // Verifica se o documento já existe
+  const documentSnapshot = await getDoc(docRef);
+
+  if (documentSnapshot.exists()) {
+    await updateDoc(docRef, {
+      [field]: firestore.FieldValue.arrayUnion(newElement),
+    });
+
+    console.log('Elemento adicionado ao array com sucesso!');
+  } else {
+    console.error('Documento não encontrado.');
+  }
+};
+export { createEvent, getEvents, updateArrayFieldEvent };

@@ -58,3 +58,12 @@ export const createEventSchema = Yup.object().shape({
     .required('Campo "Localização" é obrigatório')
     .max(45, 'O campo "Localização" não pode ter mais de 45 caracteres'),
 });
+
+export const giveRideSchema = Yup.object().shape({
+  vehicle: Yup.string().required('Campo "Veiculo" é obrigatório'),
+  vehicleVacancies: Yup.string().required('Campo "Vagas" é obrigatório'),
+  departureTime: Yup.string().required('Campo "Saindo as" é obrigatório'),
+  boardingPlace: Yup.string().required('Campo "Saindo de" é obrigatório'),
+  passingBy: Yup.string().required('Campo "Passando por" é obrigatório'),
+  ridePrice: Yup.string().required('Campo "Contribuição pela carona" é obrigatório'),
+});

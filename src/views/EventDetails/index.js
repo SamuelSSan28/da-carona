@@ -18,6 +18,9 @@ import { CiLocationOn, CiCalendarDate } from "react-icons/ci";
 import { useLocation } from "react-router-dom";
 import { useState } from "react";
 import GiveRideForm from "./giveRideForm";
+import { updateArrayFieldEvent } from "../../services/events";
+import { updateVehicle } from "../../services/user";
+import { giveRideSchema } from "../../services/formValidation";
 
 const Feature = ({ text, icon, iconBg }) => {
   return (
@@ -42,9 +45,7 @@ export default function EventDetails() {
   const event = state?.event || {};
   const { date, id, location, title } = event;
 
-  const [form, setForm] = useState({
-    id,
-  });
+  const [form, setForm] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
   const onChange = (event) => {
@@ -54,8 +55,13 @@ export default function EventDetails() {
     });
   };
 
-  const submit = () => {
-    console.log(form);
+  const submitGiveRideForm = async () => {
+    try {
+      await giveRideSchema.validate(form, { abortEarly: false });
+      await updateArrayFieldEvent(id, form, "giveRideRequests");
+      //pegar user id do contexto
+      await updateVehicle("", form.vehicle, form.vehicleVacancies);
+    } catch (error) {}
   };
 
   return (
@@ -124,7 +130,7 @@ export default function EventDetails() {
                 <GiveRideForm
                   form={form}
                   onChange={onChange}
-                  submit={submit}
+                  submit={submitGiveRideForm}
                   isLoading={isLoading}
                 />
               </TabPanel>
