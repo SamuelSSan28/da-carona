@@ -62,7 +62,7 @@ export default function GiveRideForm({ form, onChange, submit, isLoading }) {
         <FormControl isRequired>
           <FormLabel>Vagas</FormLabel>
           {form?.vehicle && (
-            <NumberInput  min={1} max={vehicleVacancies[form.vehicle]}>
+            <NumberInput name="vehicleVacancies"  min={1} max={vehicleVacancies[form.vehicle]}>
               <NumberInputField placeholder={`Máximo de vagas para o veículo é ${vehicleVacancies[form.vehicle]}`} />
             </NumberInput>
           )}
