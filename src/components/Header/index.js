@@ -22,7 +22,7 @@ import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import Logo from "../../assets/logo.png";
 
 const Links = [
-  { label: "Eventos", url: "events" },
+  { label: "Eventos", url: "/events" },
   { label: "outro link", url: "#" },
   { label: "outro link", url: "#" },
 ];

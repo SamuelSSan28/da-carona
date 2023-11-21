@@ -10,7 +10,7 @@ import {
 } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 import { firestore } from "./firebase";
-import { format, getUnixTime, parse } from "date-fns";
+import { format, parse } from "date-fns";
 
 const createEvent = async ({ title, date, hour, location, user }) => {
   // Convertendo a string de data para um objeto Timestamp
@@ -47,7 +47,7 @@ const getEvents = async () => {
       date: formattedDate,
     };
   });
-  console.log(eventsList);
+ 
   return eventsList;
 };
 

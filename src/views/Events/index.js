@@ -18,11 +18,13 @@ import {
   CardText,
 } from "../../components/EventCard";
 import { getEvents } from "../../services/events";
+import { Link, useNavigate } from "react-router-dom";
 
-export default function Events() {
+export default function Events({ history }) {
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile] = useMediaQuery("(max-width: 768px)"); // ajuste o valor máximo conforme necessário
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,6 +40,11 @@ export default function Events() {
 
     fetchData();
   }, []);
+
+  const handleCardClick = (event) => {
+    
+    navigate(`/event/${event.id}`, { state: { event } });
+  };
 
   return (
     <Box>
@@ -126,7 +133,10 @@ export default function Events() {
         {events.length > 0 ? (
           <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
             {events.map((event) => (
-              <Card as={"a"} href={"#"} key={event.id}>
+              <Card
+                key={event.id}
+                onClick={() => handleCardClick(event)}
+              >
                 <CardContent
                   align={"left"}
                   _hover={{
