@@ -18,14 +18,14 @@ const UserProvider = ({ children }) => {
     const fetchData = async () => {
       try {
         const userData = await getUser(storedToken);
-        console.log(userData);
-        setUser(userData);
+        setUser({id:storedToken, ...userData});
       } catch (error) {
-        console.error("Erro ao buscar eventos:", error);
+        console.error("Erro ao atualizar os dados dos usuários:", error);
       }  
     };
 
     fetchData();
+    console.log(user)
     
   }, []);
 

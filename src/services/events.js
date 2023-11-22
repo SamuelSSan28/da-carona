@@ -9,6 +9,7 @@ import {
   Timestamp,
   updateDoc,
   getDoc,
+  arrayUnion,
 } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 import { firestore } from "./firebase";
@@ -61,7 +62,7 @@ const updateArrayFieldEvent =async (documentId, newElement,field) => {
 
   if (documentSnapshot.exists()) {
     await updateDoc(docRef, {
-      [field]: firestore.FieldValue.arrayUnion(newElement),
+      [field]: arrayUnion(newElement),
     });
 
     console.log('Elemento adicionado ao array com sucesso!');

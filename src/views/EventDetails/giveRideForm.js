@@ -42,6 +42,15 @@ export default function GiveRideForm({ form, onChange, submit, isLoading }) {
     bus: 60,
   };
 
+  const vehicleVacanciesOnChange = (value) => {
+    onChange({
+      target: {
+        name: "vehicleVacancies",
+        value,
+      },
+    });
+  };
+
   return (
     <Box w={"100%"} bg={"white"} rounded={"lg"} boxShadow={"lg"} p={8}>
       <Stack spacing={8}>
@@ -62,8 +71,17 @@ export default function GiveRideForm({ form, onChange, submit, isLoading }) {
         <FormControl isRequired>
           <FormLabel>Vagas</FormLabel>
           {form?.vehicle && (
-            <NumberInput name="vehicleVacancies"  min={1} max={vehicleVacancies[form.vehicle]}>
-              <NumberInputField placeholder={`Máximo de vagas para o veículo é ${vehicleVacancies[form.vehicle]}`} />
+            <NumberInput
+              onChange={vehicleVacanciesOnChange}
+              min={1}
+              max={vehicleVacancies[form.vehicle]}
+            >
+              <NumberInputField
+             
+                placeholder={`Máximo de vagas para o veículo é ${
+                  vehicleVacancies[form.vehicle]
+                }`}
+              />
             </NumberInput>
           )}
         </FormControl>
@@ -100,7 +118,7 @@ export default function GiveRideForm({ form, onChange, submit, isLoading }) {
               bg: "#81d9d1",
             }}
           >
-            Oferecer 
+            Oferecer
           </Button>
         </Stack>
       </Stack>

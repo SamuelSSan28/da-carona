@@ -13,14 +13,16 @@ import {
   Tab,
   TabPanels,
   TabPanel,
+  useToast,
 } from "@chakra-ui/react";
 import { CiLocationOn, CiCalendarDate } from "react-icons/ci";
 import { useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import GiveRideForm from "./giveRideForm";
 import { updateArrayFieldEvent } from "../../services/events";
 import { updateVehicle } from "../../services/user";
 import { giveRideSchema } from "../../services/formValidation";
+import { UserContext } from "../../context/user";
 
 const Feature = ({ text, icon, iconBg }) => {
   return (
@@ -45,8 +47,10 @@ export default function EventDetails() {
   const event = state?.event || {};
   const { date, id, location, title } = event;
 
+  const toast = useToast();
   const [form, setForm] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const { user } = useContext(UserContext);
 
   const onChange = (event) => {
     setForm({
@@ -57,11 +61,33 @@ export default function EventDetails() {
 
   const submitGiveRideForm = async () => {
     try {
+      setIsLoading(true);
       await giveRideSchema.validate(form, { abortEarly: false });
-      await updateArrayFieldEvent(id, form, "giveRideRequests");
+      await updateArrayFieldEvent(id, {...form,user}, "giveRideRequests");
       //pegar user id do contexto
-      await updateVehicle("", form.vehicle, form.vehicleVacancies);
-    } catch (error) {}
+      await updateVehicle(user.id, form.vehicle, form.vehicleVacancies);
+
+      toast({
+        title: "Carona cadastrado com sucesso!",
+        status: "success",
+        duration: 9000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setForm({});
+    } catch (error) {
+      error?.errors?.forEach((message) => {
+        toast({
+          title: "Erro de validação",
+          description: message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
