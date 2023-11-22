@@ -63,7 +63,7 @@ export default function EventDetails() {
     try {
       setIsLoading(true);
       await giveRideSchema.validate(form, { abortEarly: false });
-      await updateArrayFieldEvent(id, {...form,user}, "giveRideRequests");
+      await updateArrayFieldEvent(id, { ...form, user }, "giveRideRequests");
       //pegar user id do contexto
       await updateVehicle(user.id, form.vehicle, form.vehicleVacancies);
 
@@ -158,6 +158,7 @@ export default function EventDetails() {
                   onChange={onChange}
                   submit={submitGiveRideForm}
                   isLoading={isLoading}
+                  userData={user}
                 />
               </TabPanel>
               <TabPanel p={0} style={{ padding: 0 }}></TabPanel>

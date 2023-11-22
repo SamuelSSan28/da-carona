@@ -10,7 +10,7 @@ import {
   Stack,
 } from "@chakra-ui/react";
 
-export default function GiveRideForm({ form, onChange, submit, isLoading }) {
+export default function GiveRideForm({ form, onChange, submit, isLoading, userData, }) {
   const vehicleOptions = [
     {
       value: "car",
@@ -61,6 +61,7 @@ export default function GiveRideForm({ form, onChange, submit, isLoading }) {
             placeholder="Selecione uma opção"
             name="vehicle"
             onChange={onChange}
+            value={userData?.vehicle || ""}
           >
             {vehicleOptions.map((e) => (
               <option value={e.value}>{e.label}</option>
@@ -75,6 +76,7 @@ export default function GiveRideForm({ form, onChange, submit, isLoading }) {
               onChange={vehicleVacanciesOnChange}
               min={1}
               max={vehicleVacancies[form.vehicle]}
+              value={userData?.vehicleVacancies || ""}
             >
               <NumberInputField
              
