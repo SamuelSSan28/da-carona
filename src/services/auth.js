@@ -1,8 +1,21 @@
-import { signInWithPhoneNumber } from "firebase/auth";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { auth, firestore } from "./firebase";
 
 const sendSMSCode = async (phone) => {
+  if (!window.recaptchaVerifier) {
+    window.recaptchaVerifier = new RecaptchaVerifier(auth, "sign-in-button", {
+      size: "invisible",
+      callback: (response) => {
+        console.log("response",response)
+      },
+      "expired-callback": () => {
+        // Response expired. Ask user to solve reCAPTCHA again.
+        // ...
+      },
+    });
+  }
+
   const appVerifier = window.recaptchaVerifier;
 
   const confirmationResult = await signInWithPhoneNumber(

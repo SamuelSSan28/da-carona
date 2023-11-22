@@ -34,14 +34,14 @@ export default function Auth() {
       });
     } catch (error) {
       console.error("Erro ao handleValidatioStep:", error);
-      toast({
-        title: 'Não foi possível enviar o SMS',
-        description: JSON.stringify(error),
-        status: 'error',
-        position: "bottom",
-        duration: 9000,
-        isClosable: true,
-      })
+      // toast({
+      //   title: 'Não foi possível enviar o SMS',
+      //   description: JSON.stringify(error),
+      //   status: 'error',
+      //   position: "bottom",
+      //   duration: 9000,
+      //   isClosable: true,
+      // })
     }
   };
 

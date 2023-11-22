@@ -69,7 +69,9 @@ export default function Simple() {
           </Box>
           <HStack as={"nav"} spacing={4} display={{ base: "none", md: "flex" }}>
             {Links.map((link) => (
-              <NavLink key={link.label} url={link.url}>{link.label}</NavLink>
+              <NavLink key={link.label} url={link.url}>
+                {link.label}
+              </NavLink>
             ))}
           </HStack>
         </HStack>
@@ -89,7 +91,14 @@ export default function Simple() {
               <MenuItem>Conta</MenuItem>
               <MenuItem>Meus Eventos</MenuItem>
               <MenuDivider />
-              <MenuItem>Sair</MenuItem>
+              <MenuItem
+                onClick={() => {
+                  localStorage.removeItem("token-daCarona");
+                  window.reload();
+                }}
+              >
+                Sair
+              </MenuItem>
             </MenuList>
           </Menu>
         </Flex>
@@ -99,7 +108,9 @@ export default function Simple() {
         <Box pb={4} display={{ md: "none" }}>
           <Stack as={"nav"} spacing={4}>
             {Links.map((link) => (
-              <NavLink key={link.label} url={link.url}>{link.label}</NavLink>
+              <NavLink key={link.label} url={link.url}>
+                {link.label}
+              </NavLink>
             ))}
           </Stack>
         </Box>
