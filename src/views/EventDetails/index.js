@@ -17,12 +17,20 @@ import {
   AlertDialogHeader,
   AlertDialogFooter,
   AlertDialogBody,
+  Stack,
+  Heading,
+  Tabs,
+  TabList,
+  Tab,
+  TabPanel,
+  TabPanels,
+  VStack,
 } from "@chakra-ui/react";
 import { CiLocationOn, CiCalendarDate, CiAlarmOn } from "react-icons/ci";
 import { useLocation } from "react-router-dom";
 import { useContext, useState } from "react";
 import GiveRideForm from "./giveRideForm";
-import { updateArrayFieldEvent } from "../../services/events";
+import { getEvent, updateArrayFieldEvent } from "../../services/events";
 import { updateVehicle } from "../../services/user";
 import { giveRideSchema } from "../../services/formValidation";
 import { UserContext } from "../../context/user";
@@ -33,6 +41,8 @@ import {
   CardText,
 } from "../../components/EventCard";
 import { useRef } from "react";
+import { useEffect } from "react";
+import vehicleIcons from "./icons";
 
 function StatsCard(props) {
   const { title, stat, icon } = props;
@@ -62,24 +72,31 @@ function StatsCard(props) {
 
 export default function EventDetails() {
   const { state } = useLocation();
-  const event = state?.event || {};
-  const { date, id, location, title, day, hour } = event;
-
   const toast = useToast();
   const [form, setForm] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [selected, setSelected] = useState(false);
   const [requests, setRequests] = useState({
-    giveRide: [1, 2, 3, 4],
+    giveRide: [],
   });
-  const { user } = useContext(UserContext);
   const {
     isOpen: isOpenGiveRide,
     onOpen: onOpenGiveRide,
     onClose: onCloseGiveRide,
   } = useDisclosure();
-  const cancelRefGiveRide = useRef();
 
-  console.log("adadas", isOpenGiveRide, onOpenGiveRide, onCloseGiveRide);
+  const {
+    isOpen: isOpenCard,
+    onOpen: onOpenCard,
+    onClose: onCloseCard,
+  } = useDisclosure();
+
+  const cancelRefGiveRide = useRef();
+  const cancelRefCard = useRef();
+
+  const event = state?.event || {};
+  const { user } = useContext(UserContext);
+  const { date, id, location, title, day, hour } = event;
 
   const onChange = (event) => {
     setForm({
@@ -119,6 +136,25 @@ export default function EventDetails() {
     }
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const event = await getEvent(id);
+
+        console.log("eeevent", event);
+        setRequests({
+          ...requests,
+          giveRide: event.giveRideRequests || [],
+        });
+      } catch (error) {
+        console.error("Erro ao buscar eventos:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
   return (
     <Container maxW="100%">
       <Box maxW="7xl" mx={"auto"} px={{ base: 2, sm: 12, md: 17 }}>
@@ -199,11 +235,148 @@ export default function EventDetails() {
             </AlertDialog>
           </>
 
-          <Button bg={"#62D0C6"} color="white" _hover={{ bg: "#81d9d1" }} m={4}>
+          {/* <Button bg={"#62D0C6"} color="white" _hover={{ bg: "#81d9d1" }} m={4}>
             Pedir Carona
-          </Button>
+  </Button>*/}
         </Flex>
       </Box>
+
+      <Container maxW={"full"} py={12} pt={0} as={Stack} spacing={12}>
+        <Tabs w="100%" variant="enclosed" colorScheme="green">
+          <TabList mb="1em">
+            <Tab
+              flex="1"
+              textAlign="center"
+              _selected={{ color: "white", bg: "#62D0C6" }}
+              border="0.1rem solid #62D0C6"
+            >
+              Pedir Carona
+            </Tab>
+            <Tab
+              flex="1"
+              textAlign="center"
+              _selected={{ color: "white", bg: "#62D0C6" }}
+              border="0.1rem solid #62D0C6"
+            >
+              Dar Carona
+            </Tab>
+          </TabList>
+          <TabPanels w="100%" p={0}>
+            <TabPanel w="100%" p={0} style={{ padding: 2 }}>
+              <SimpleGrid
+                columns={{ base: 1, md: 2, lg: 4 }}
+                spacing={{ base: 0, md: 0, lg: 6 }}
+              >
+                {requests.giveRide.length > 0 &&
+                  requests.giveRide.map((request) => (
+                    <Card
+                      key={request.id}
+                      h={{ base: 160, lg: 200 }}
+                      onClick={(e) => {
+                        onOpenCard();
+                        setSelected(request);
+                      }}
+                    >
+                      <CardContent
+                        align={"left"}
+                        _hover={{
+                          border: "2px solid #81d9d1",
+                        }}
+                      >
+                        <Flex align="center">
+                          {/* Ícone centralizado e grande */}
+                          <Box
+                            fontSize="3xl"
+                            textAlign="center"
+                            color="#62D0C6"
+                            mr={4}
+                          >
+                            {vehicleIcons[request.vehicle].icon}
+                          </Box>
+
+                          {/* Textos à direita */}
+                          <VStack align="start" spacing={2}>
+                            <CardText>
+                              Vagas: {request.vehicleVacancies}
+                            </CardText>
+                            <CardText>
+                              Saindo as: {request.departureTime}
+                            </CardText>
+                            {request.ridePrice && (
+                              <CardText>
+                                Contribuição pela carona: {request.ridePrice}
+                              </CardText>
+                            )}
+                          </VStack>
+                        </Flex>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </SimpleGrid>
+            </TabPanel>
+            <TabPanel p={0} style={{ padding: 0 }}></TabPanel>
+          </TabPanels>
+
+          <AlertDialog
+            isOpen={isOpenCard}
+            leastDestructiveRef={cancelRefCard}
+            onClose={onCloseCard}
+            isCentered
+          >
+            <AlertDialogOverlay>
+              <AlertDialogContent>
+                <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                  Oferecer Carona
+                </AlertDialogHeader>
+
+                <AlertDialogBody>
+                  <Flex align="center">
+                    {/* Ícone centralizado e grande */}
+                    <Box
+                      fontSize="3xl"
+                      textAlign="center"
+                      color="#62D0C6"
+                      mr={4}
+                    >
+                      {selected.vehicle
+                        ? vehicleIcons[selected.vehicle].icon
+                        : null}
+                    </Box>
+
+                    {/* Textos à direita */}
+                    <VStack align="start" spacing={2}>
+                      <CardText>Veiculo: { vehicleIcons[selected.vehicle].label}</CardText>
+                      <CardText>Vagas: {selected.vehicleVacancies}</CardText>
+                      <CardText>Saindo as: {selected.departureTime}</CardText>
+                      <CardText>Saindo de: {selected.boardingPlace}</CardText>
+                      <CardText>Passando por: {selected.passingBy}</CardText>
+                      {selected.ridePrice && (
+                        <CardText>
+                          Contribuição pela carona: {selected.ridePrice}
+                        </CardText>
+                      )}
+                    </VStack>
+                  </Flex>
+                </AlertDialogBody>
+
+                <AlertDialogFooter>
+                  <Button ref={cancelRefCard} onClick={onCloseCard}>
+                    Fechar
+                  </Button>
+                  {/* <Button
+                    isLoading={isLoading}
+                    bg="#62D0C6"
+                    color={"white"}
+                    ml={3}
+                  >
+                    Continuar
+                            </Button>*/}
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialogOverlay>
+          </AlertDialog>
+        </Tabs>
+      </Container>
     </Container>
   );
 }

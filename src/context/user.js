@@ -24,9 +24,7 @@ const UserProvider = ({ children }) => {
       }  
     };
 
-    fetchData();
-    console.log(user)
-    
+    fetchData();    
   }, []);
 
   // Função para atualizar o token e persistir no LocalStorage

@@ -68,7 +68,6 @@ const updateArrayFieldEvent =async (documentId, newElement,field) => {
       [field]: arrayUnion(newElement),
     });
 
-    console.log('Elemento adicionado ao array com sucesso!');
   } else {
     console.error('Documento não encontrado.');
   }

@@ -56,7 +56,7 @@ Nesta segunda versão o usuário poderá o oferecer carona em eventos, e os usu�
 - Ao ir novamente em oferecer carona, se ele já tiver um veículo salvo no firebase, já vir este veículo selecionado na view com o número de vagas também da última vez.
 
 ## Visualizar caronas disponíveis
-- Ao acessar um evento, se tiverem pessoas oferecendo carona, apresentar cada carona em um card, com um ícone indicando sem é carro, moto, etc. Apresentar também a hora da saída e a contribuição caso tenha, e quantas vagas tem
+- Ao acessar um evento, se tiverem pessoas oferecendo carona, apresentar cada carona em um card, com um ícone indicando se é carro, moto, etc. Apresentar também a hora da saída e a contribuição caso tenha, e quantas vagas tem
 - Ao clicar nesta oferta de carona, nesta própria view exibir de onde sairá, por onde irá passar, se a pessoa tiver informado
 
 Nesta view, nas próximas versões, a pessoa irá pedir carona.
