@@ -9,7 +9,7 @@ import {
 const Card = (props) => {
   const { children } = props;
 
-  return <Box {...props}>{children}</Box>;
+  return <Box style={{cursor:"pointer"}} {...props}>{children}</Box>;
 };
 
 const CardContent = (props) => {

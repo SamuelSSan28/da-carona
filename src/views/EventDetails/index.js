@@ -2,20 +2,23 @@ import {
   Container,
   SimpleGrid,
   Flex,
-  Heading,
-  Text,
-  Stack,
-  StackDivider,
-  Icon,
   useColorModeValue,
-  Tabs,
-  TabList,
-  Tab,
-  TabPanels,
-  TabPanel,
+  chakra,
   useToast,
+  StatLabel,
+  StatNumber,
+  Box,
+  Stat,
+  Button,
+  AlertDialog,
+  useDisclosure,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogBody,
 } from "@chakra-ui/react";
-import { CiLocationOn, CiCalendarDate } from "react-icons/ci";
+import { CiLocationOn, CiCalendarDate, CiAlarmOn } from "react-icons/ci";
 import { useLocation } from "react-router-dom";
 import { useContext, useState } from "react";
 import GiveRideForm from "./giveRideForm";
@@ -23,34 +26,60 @@ import { updateArrayFieldEvent } from "../../services/events";
 import { updateVehicle } from "../../services/user";
 import { giveRideSchema } from "../../services/formValidation";
 import { UserContext } from "../../context/user";
+import {
+  Card,
+  CardContent,
+  CardHeading,
+  CardText,
+} from "../../components/EventCard";
+import { useRef } from "react";
 
-const Feature = ({ text, icon, iconBg }) => {
+function StatsCard(props) {
+  const { title, stat, icon } = props;
   return (
-    <Stack direction={"row"} align={"center"}>
-      <Flex
-        w={10}
-        h={10}
-        align={"center"}
-        justify={"center"}
-        rounded={"full"}
-        bg={iconBg}
-      >
+    <Stat
+      px={{ base: 2, md: 4 }}
+      py={"5"}
+      bg={useColorModeValue("white", "gray.800")}
+      boxShadow={"lg"}
+      rounded={"xl"}
+    >
+      <Flex justifyContent={"start"} align={"center"}>
         {icon}
+        <Box pl={{ base: 2, md: 4 }}>
+          <StatLabel fontSize={"1xl"} fontWeight={"medium"} isTruncated>
+            {title}
+          </StatLabel>
+
+          <StatNumber fontSize={"2xl"} fontWeight={"medium"}>
+            {stat}
+          </StatNumber>
+        </Box>
       </Flex>
-      <Text fontWeight={600}>{text}</Text>
-    </Stack>
+    </Stat>
   );
-};
+}
 
 export default function EventDetails() {
   const { state } = useLocation();
   const event = state?.event || {};
-  const { date, id, location, title } = event;
+  const { date, id, location, title, day, hour } = event;
 
   const toast = useToast();
   const [form, setForm] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [requests, setRequests] = useState({
+    giveRide: [1, 2, 3, 4],
+  });
   const { user } = useContext(UserContext);
+  const {
+    isOpen: isOpenGiveRide,
+    onOpen: onOpenGiveRide,
+    onClose: onCloseGiveRide,
+  } = useDisclosure();
+  const cancelRefGiveRide = useRef();
+
+  console.log("adadas", isOpenGiveRide, onOpenGiveRide, onCloseGiveRide);
 
   const onChange = (event) => {
     setForm({
@@ -81,7 +110,7 @@ export default function EventDetails() {
           title: "Erro de validação",
           description: message,
           status: "error",
-          duration: 5000,
+          duration: 2000,
           isClosable: true,
         });
       });
@@ -91,81 +120,90 @@ export default function EventDetails() {
   };
 
   return (
-    <Container maxW={"5xl"} py={12}>
-      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
-        <Stack spacing={4}>
-          <Text
-            textTransform={"uppercase"}
-            color={"blue.400"}
-            fontWeight={600}
-            fontSize={"sm"}
-            bg={useColorModeValue("blue.50", "blue.900")}
-            p={2}
-            alignSelf={"flex-start"}
-            rounded={"md"}
-          >
-            Categoria
-          </Text>
-          <Heading>{title}</Heading>
-          <Text color={"gray.500"} fontSize={"lg"}>
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-            nonumy eirmod tempor invidunt ut labore
-          </Text>
-          <Stack
-            spacing={4}
-            divider={
-              <StackDivider
-                borderColor={useColorModeValue("gray.100", "gray.700")}
-              />
-            }
-          >
-            <Feature
-              icon={<Icon as={CiLocationOn} color={"#62D0C6"} w={6} h={6} />}
-              iconBg={"gray.100"}
-              text={location}
-            />
-            <Feature
-              icon={<Icon as={CiCalendarDate} color={"#62D0C6"} w={6} h={6} />}
-              iconBg={"gray.100"}
-              text={date}
-            />
-          </Stack>
-        </Stack>
-        <Flex justify="space-between">
-          <Tabs w="100%" variant="enclosed" colorScheme="green">
-            <TabList mb="1em">
-              <Tab
-                flex="1"
-                textAlign="center"
-                _selected={{ color: "white", bg: "#62D0C6" }}
-                border="0.1rem solid #62D0C6"
-              >
-                Dar Carona
-              </Tab>
-              <Tab
-                flex="1"
-                textAlign="center"
-                _selected={{ color: "white", bg: "#62D0C6" }}
-                border="0.1rem solid #62D0C6"
-              >
-                Pedir Carona
-              </Tab>
-            </TabList>
-            <TabPanels w="100%" p={0}>
-              <TabPanel w="100%" p={0} style={{ padding: 0 }}>
-                <GiveRideForm
-                  form={form}
-                  onChange={onChange}
-                  submit={submitGiveRideForm}
-                  isLoading={isLoading}
-                  userData={user}
-                />
-              </TabPanel>
-              <TabPanel p={0} style={{ padding: 0 }}></TabPanel>
-            </TabPanels>
-          </Tabs>
+    <Container maxW="100%">
+      <Box maxW="7xl" mx={"auto"} px={{ base: 2, sm: 12, md: 17 }}>
+        <chakra.h1
+          textAlign={"center"}
+          fontSize={"4xl"}
+          py={10}
+          fontWeight={"bold"}
+          color={"#62D0C6"}
+        >
+          {title}
+        </chakra.h1>
+
+        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{ base: 5, lg: 8 }}>
+          <StatsCard
+            title={"Localização"}
+            stat={location}
+            icon={<CiLocationOn size={"2em"} />}
+          />
+          <StatsCard
+            title={"Data"}
+            stat={day}
+            icon={<CiCalendarDate size={"2em"} />}
+          />
+          <StatsCard
+            title={"Horario"}
+            stat={hour}
+            icon={<CiAlarmOn size={"2em"} />}
+          />
+        </SimpleGrid>
+        <Flex justifyContent={"center"} padding={8}>
+          <>
+            <Button
+              onClick={onOpenGiveRide}
+              bg={"#62D0C6"}
+              color="white"
+              _hover={{ bg: "#81d9d1" }}
+              m={4}
+            >
+              Oferecer Carona
+            </Button>
+
+            <AlertDialog
+              isOpen={isOpenGiveRide}
+              leastDestructiveRef={cancelRefGiveRide}
+              onClose={onCloseGiveRide}
+            >
+              <AlertDialogOverlay>
+                <AlertDialogContent>
+                  <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                    Oferecer Carona
+                  </AlertDialogHeader>
+
+                  <AlertDialogBody>
+                    <GiveRideForm
+                      form={form}
+                      onChange={onChange}
+                      userData={user}
+                    />
+                  </AlertDialogBody>
+
+                  <AlertDialogFooter>
+                    <Button ref={cancelRefGiveRide} onClick={onCloseGiveRide}>
+                      Cancelar
+                    </Button>
+                    <Button
+                      isLoading={isLoading}
+                      bg="#62D0C6"
+                      color={"white"}
+                      onClick={submitGiveRideForm}
+                      ml={3}
+                    >
+                      Continuar
+                    </Button>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialogOverlay>
+            </AlertDialog>
+          </>
+
+          <Button bg={"#62D0C6"} color="white" _hover={{ bg: "#81d9d1" }} m={4}>
+            Pedir Carona
+          </Button>
         </Flex>
-      </SimpleGrid>
+      </Box>
     </Container>
   );
 }

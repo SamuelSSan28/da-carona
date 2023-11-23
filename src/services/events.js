@@ -42,12 +42,15 @@ const getEvents = async () => {
     const formattedDate = format(dateTimestamp, "dd/MM/yyyy * HH:mm").replace(
       "*",
       "às"
-    ); // Formatando a data
+    );
+    const [day, hour] = formattedDate.split("às");
 
     return {
       id: doc.id,
       ...event,
       date: formattedDate,
+      day,
+      hour,
     };
   });
  
@@ -70,4 +73,18 @@ const updateArrayFieldEvent =async (documentId, newElement,field) => {
     console.error('Documento não encontrado.');
   }
 };
-export { createEvent, getEvents, updateArrayFieldEvent };
+
+const getEvent = async (eventId) => {
+  const docRef = doc(firestore, "events", eventId);
+
+  const documentSnapshot = await getDoc(docRef);
+
+  if (documentSnapshot.exists()) {
+    // Se o documento existir, retorne os dados
+    return documentSnapshot.data();
+  } else {
+    // Se o documento não existir, retorne null ou um valor padrão, dependendo da sua lógica
+    return {};
+  }
+};
+export { createEvent, getEvents, updateArrayFieldEvent, getEvent };

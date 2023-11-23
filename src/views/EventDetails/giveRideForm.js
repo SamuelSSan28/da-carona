@@ -10,7 +10,11 @@ import {
   Stack,
 } from "@chakra-ui/react";
 
-export default function GiveRideForm({ form, onChange, submit, isLoading, userData, }) {
+export default function GiveRideForm({
+  form,
+  onChange,
+  userData,
+}) {
   const vehicleOptions = [
     {
       value: "car",
@@ -52,7 +56,7 @@ export default function GiveRideForm({ form, onChange, submit, isLoading, userDa
   };
 
   return (
-    <Box w={"100%"} bg={"white"} rounded={"lg"} boxShadow={"lg"} p={8}>
+    <Box w={"100%"} bg={"white"} rounded={"lg"}   p={2}>
       <Stack spacing={8}>
         <FormControl id="vehicle" isRequired>
           <FormLabel>Veiculo</FormLabel>
@@ -79,7 +83,6 @@ export default function GiveRideForm({ form, onChange, submit, isLoading, userDa
               value={userData?.vehicleVacancies || ""}
             >
               <NumberInputField
-             
                 placeholder={`Máximo de vagas para o veículo é ${
                   vehicleVacancies[form.vehicle]
                 }`}
@@ -107,22 +110,6 @@ export default function GiveRideForm({ form, onChange, submit, isLoading, userDa
           <FormLabel>Contribuição pela carona</FormLabel>
           <Input type="text" onChange={onChange} name="ridePrice" />
         </FormControl>
-
-        <Stack spacing={10} pt={2}>
-          <Button
-            onClick={submit}
-            isLoading={isLoading}
-            loadingText="...."
-            size="lg"
-            bg={"#62D0C6"}
-            color={"white"}
-            _hover={{
-              bg: "#81d9d1",
-            }}
-          >
-            Oferecer
-          </Button>
-        </Stack>
       </Stack>
     </Box>
   );
