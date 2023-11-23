@@ -65,5 +65,5 @@ export const giveRideSchema = Yup.object().shape({
   departureTime: Yup.string().required('Campo "Saindo as" é obrigatório'),
   boardingPlace: Yup.string().required('Campo "Saindo de" é obrigatório'),
   passingBy: Yup.string().required('Campo "Passando por" é obrigatório'),
-  ridePrice: Yup.string().required('Campo "Contribuição pela carona" é obrigatório'),
+  //ridePrice: Yup.string().required('Campo "Contribuição pela carona" é obrigatório'),
 });

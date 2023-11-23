@@ -48,33 +48,38 @@ function StatsCard(props) {
   const { title, stat, icon } = props;
   return (
     <Stat
-      px={{ base: 2, md: 4 }}
-      py={"5"}
-      bg={useColorModeValue("white", "gray.800")}
-      boxShadow={"lg"}
-      rounded={"xl"}
-    >
-      <Flex justifyContent={"start"} align={"center"}>
-        {icon}
-        <Box pl={{ base: 2, md: 4 }}>
-          <StatLabel fontSize={"1xl"} fontWeight={"medium"} isTruncated>
-            {title}
-          </StatLabel>
-
-          <StatNumber fontSize={"2xl"} fontWeight={"medium"}>
-            {stat}
-          </StatNumber>
-        </Box>
-      </Flex>
-    </Stat>
+    px={{ base: 2, md: 4 }}
+    py={{ base: 3, md: 5 }} // Padding responsivo
+    bg={useColorModeValue("white", "gray.800")}
+    boxShadow={"lg"}
+    rounded={"xl"}
+  >
+    <Flex justifyContent={"start"} align={"center"}>
+      {icon}
+      <Box pl={{ base: 2, md: 4 }}>
+        <StatLabel fontSize={{ base: "sm", md: "1xl" }} fontWeight={"medium"} isTruncated>
+          {title}
+        </StatLabel>
+  
+        <StatNumber fontSize={{ base: "lg", md: "2xl" }} fontWeight={"medium"}>
+          {stat}
+        </StatNumber>
+      </Box>
+    </Flex>
+  </Stat>
   );
 }
 
 export default function EventDetails() {
   const { state } = useLocation();
+  const { user } = useContext(UserContext);
   const toast = useToast();
-  const [form, setForm] = useState({});
+  const [form, setForm] = useState({
+    vehicle: user.vehicle,
+    vehicleVacancies: user.vehicleVacancies,
+  });
   const [isLoading, setIsLoading] = useState(false);
+  const [isRefresh, setIsRefresh] = useState(false);
   const [selected, setSelected] = useState(false);
   const [requests, setRequests] = useState({
     giveRide: [],
@@ -95,7 +100,6 @@ export default function EventDetails() {
   const cancelRefCard = useRef();
 
   const event = state?.event || {};
-  const { user } = useContext(UserContext);
   const { date, id, location, title, day, hour } = event;
 
   const onChange = (event) => {
@@ -112,7 +116,7 @@ export default function EventDetails() {
       await updateArrayFieldEvent(id, { ...form, user }, "giveRideRequests");
       //pegar user id do contexto
       await updateVehicle(user.id, form.vehicle, form.vehicleVacancies);
-
+      setIsRefresh(!isRefresh);
       toast({
         title: "Carona cadastrado com sucesso!",
         status: "success",
@@ -120,7 +124,11 @@ export default function EventDetails() {
         isClosable: true,
         position: "bottom",
       });
-      setForm({});
+      setForm({
+        vehicle: form.vehicle,
+        vehicleVacancies: form.vehicleVacancies,
+      });
+      onCloseGiveRide();
     } catch (error) {
       error?.errors?.forEach((message) => {
         toast({
@@ -154,14 +162,14 @@ export default function EventDetails() {
     };
 
     fetchData();
-  }, []);
+  }, [isRefresh]);
   return (
     <Container maxW="100%">
       <Box maxW="7xl" mx={"auto"} px={{ base: 2, sm: 12, md: 17 }}>
         <chakra.h1
           textAlign={"center"}
-          fontSize={"4xl"}
-          py={10}
+          fontSize={{ base: "2xl", md: "4xl" }} // Tamanho responsivo
+          py={{ base: 6, md: 10 }} // Padding responsivo
           fontWeight={"bold"}
           color={"#62D0C6"}
         >
@@ -226,6 +234,9 @@ export default function EventDetails() {
                       color={"white"}
                       onClick={submitGiveRideForm}
                       ml={3}
+                      _hover={{
+                        bg: "#81d9d1",
+                      }}
                     >
                       Continuar
                     </Button>
@@ -271,7 +282,7 @@ export default function EventDetails() {
                   requests.giveRide.map((request) => (
                     <Card
                       key={request.id}
-                      h={{ base: 160, lg: 200 }}
+                      h={"150px"}
                       onClick={(e) => {
                         onOpenCard();
                         setSelected(request);
@@ -302,11 +313,12 @@ export default function EventDetails() {
                             <CardText>
                               Saindo as: {request.departureTime}
                             </CardText>
-                            {request.ridePrice && (
-                              <CardText>
-                                Contribuição pela carona: {request.ridePrice}
-                              </CardText>
-                            )}
+                            <CardText>
+                              {request.ridePrice
+                                ? `Contribuição pela carona: ${request.ridePrice} `
+                                : ""}
+                              &nbsp;
+                            </CardText>
                           </VStack>
                         </Flex>
                       </CardContent>
@@ -326,7 +338,7 @@ export default function EventDetails() {
             <AlertDialogOverlay>
               <AlertDialogContent>
                 <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                  Oferecer Carona
+                  Oferecida por: {selected.user.name}
                 </AlertDialogHeader>
 
                 <AlertDialogBody>
@@ -345,7 +357,11 @@ export default function EventDetails() {
 
                     {/* Textos à direita */}
                     <VStack align="start" spacing={2}>
-                      <CardText>Veiculo: { vehicleIcons[selected.vehicle].label}</CardText>
+                      <CardText>
+                        Veiculo:{" "}
+                        {selected.vehicle &&
+                          vehicleIcons[selected.vehicle].label}
+                      </CardText>
                       <CardText>Vagas: {selected.vehicleVacancies}</CardText>
                       <CardText>Saindo as: {selected.departureTime}</CardText>
                       <CardText>Saindo de: {selected.boardingPlace}</CardText>

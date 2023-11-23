@@ -65,7 +65,7 @@ export default function GiveRideForm({
             placeholder="Selecione uma opção"
             name="vehicle"
             onChange={onChange}
-            value={userData?.vehicle || ""}
+            value={form?.vehicle || ""}
           >
             {vehicleOptions.map((e) => (
               <option value={e.value}>{e.label}</option>
@@ -75,12 +75,12 @@ export default function GiveRideForm({
 
         <FormControl isRequired>
           <FormLabel>Vagas</FormLabel>
-          {form?.vehicle && (
+          {(form?.vehicle) && (
             <NumberInput
               onChange={vehicleVacanciesOnChange}
               min={1}
               max={vehicleVacancies[form.vehicle]}
-              value={userData?.vehicleVacancies || ""}
+              value={form?.vehicleVacancies || ""}
             >
               <NumberInputField
                 placeholder={`Máximo de vagas para o veículo é ${
@@ -106,7 +106,7 @@ export default function GiveRideForm({
           <Input type="text" onChange={onChange} name="passingBy" />
         </FormControl>
 
-        <FormControl isRequired>
+        <FormControl>
           <FormLabel>Contribuição pela carona</FormLabel>
           <Input type="text" onChange={onChange} name="ridePrice" />
         </FormControl>
