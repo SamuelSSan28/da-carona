@@ -1,4 +1,10 @@
-import { FaCar, FaMotorcycle, FaBus, FaShuttleVan, FaBusAlt } from 'react-icons/fa';
+import {
+  FaCar,
+  FaMotorcycle,
+  FaBus,
+  FaShuttleVan,
+  FaBusAlt,
+} from "react-icons/fa";
 
 const vehicleIcons = {
   car: {
@@ -14,11 +20,11 @@ const vehicleIcons = {
     label: "Van",
   },
   minibus: {
-    icon: <FaBusAlt />,
+    icon: <FaBus />,
     label: "Micro-ônibus",
   },
   bus: {
-    icon: <FaBus />,
+    icon: <FaBusAlt />,
     label: "Ônibus",
   },
 };

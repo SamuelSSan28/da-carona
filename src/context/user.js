@@ -18,13 +18,13 @@ const UserProvider = ({ children }) => {
     const fetchData = async () => {
       try {
         const userData = await getUser(storedToken);
-        setUser({id:storedToken, ...userData});
+        setUser({ id: storedToken, ...userData });
       } catch (error) {
         console.error("Erro ao atualizar os dados dos usuários:", error);
-      }  
+      }
     };
 
-    fetchData();    
+    if (!user) fetchData();
   }, []);
 
   // Função para atualizar o token e persistir no LocalStorage

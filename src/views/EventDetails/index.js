@@ -18,7 +18,6 @@ import {
   AlertDialogFooter,
   AlertDialogBody,
   Stack,
-  Heading,
   Tabs,
   TabList,
   Tab,
@@ -37,7 +36,6 @@ import { UserContext } from "../../context/user";
 import {
   Card,
   CardContent,
-  CardHeading,
   CardText,
 } from "../../components/EventCard";
 import { useRef } from "react";
@@ -48,39 +46,47 @@ function StatsCard(props) {
   const { title, stat, icon } = props;
   return (
     <Stat
-    px={{ base: 2, md: 4 }}
-    py={{ base: 3, md: 5 }} // Padding responsivo
-    bg={useColorModeValue("white", "gray.800")}
-    boxShadow={"lg"}
-    rounded={"xl"}
-  >
-    <Flex justifyContent={"start"} align={"center"}>
-      {icon}
-      <Box pl={{ base: 2, md: 4 }}>
-        <StatLabel fontSize={{ base: "sm", md: "1xl" }} fontWeight={"medium"} isTruncated>
-          {title}
-        </StatLabel>
-  
-        <StatNumber fontSize={{ base: "lg", md: "2xl" }} fontWeight={"medium"}>
-          {stat}
-        </StatNumber>
-      </Box>
-    </Flex>
-  </Stat>
+      px={{ base: 2, md: 4 }}
+      py={{ base: 3, md: 5 }} // Padding responsivo
+      bg={useColorModeValue("white", "gray.800")}
+      boxShadow={"lg"}
+      rounded={"xl"}
+    >
+      <Flex justifyContent={"start"} align={"center"}>
+        {icon}
+        <Box pl={{ base: 2, md: 4 }}>
+          <StatLabel
+            fontSize={{ base: "sm", md: "1xl" }}
+            fontWeight={"medium"}
+            isTruncated
+          >
+            {title}
+          </StatLabel>
+
+          <StatNumber
+            fontSize={{ base: "lg", md: "2xl" }}
+            fontWeight={"medium"}
+          >
+            {stat}
+          </StatNumber>
+        </Box>
+      </Flex>
+    </Stat>
   );
 }
 
 export default function EventDetails() {
   const { state } = useLocation();
+
   const { user } = useContext(UserContext);
+  const event = state?.event || {};
+
   const toast = useToast();
-  const [form, setForm] = useState({
-    vehicle: user.vehicle,
-    vehicleVacancies: user.vehicleVacancies,
-  });
+  const [form, setForm] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [isRefresh, setIsRefresh] = useState(false);
-  const [selected, setSelected] = useState(false);
+  const [eventData, setEventData] = useState(event);
+  const [selected, setSelected] = useState(null);
   const [requests, setRequests] = useState({
     giveRide: [],
   });
@@ -99,9 +105,6 @@ export default function EventDetails() {
   const cancelRefGiveRide = useRef();
   const cancelRefCard = useRef();
 
-  const event = state?.event || {};
-  const { date, id, location, title, day, hour } = event;
-
   const onChange = (event) => {
     setForm({
       ...form,
@@ -113,7 +116,11 @@ export default function EventDetails() {
     try {
       setIsLoading(true);
       await giveRideSchema.validate(form, { abortEarly: false });
-      await updateArrayFieldEvent(id, { ...form, user }, "giveRideRequests");
+      await updateArrayFieldEvent(
+        eventData.id,
+        { ...form, user },
+        "giveRideRequests"
+      );
       //pegar user id do contexto
       await updateVehicle(user.id, form.vehicle, form.vehicleVacancies);
       setIsRefresh(!isRefresh);
@@ -147,13 +154,15 @@ export default function EventDetails() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const event = await getEvent(id);
-
-        console.log("eeevent", event);
+        const event_ = await getEvent(eventData.id);
         setRequests({
           ...requests,
-          giveRide: event.giveRideRequests || [],
+          giveRide: event_.giveRideRequests || [],
         });
+       
+        if (!event) {
+          setEventData(event_);
+        }
       } catch (error) {
         console.error("Erro ao buscar eventos:", error);
       } finally {
@@ -162,7 +171,13 @@ export default function EventDetails() {
     };
 
     fetchData();
-  }, [isRefresh]);
+    if(user && !isRefresh){
+      setForm({
+        vehicle: user.vehicle,
+        vehicleVacancies: user.vehicleVacancies,
+      })
+    }
+  }, [isRefresh, user]);
   return (
     <Container maxW="100%">
       <Box maxW="7xl" mx={"auto"} px={{ base: 2, sm: 12, md: 17 }}>
@@ -173,23 +188,23 @@ export default function EventDetails() {
           fontWeight={"bold"}
           color={"#62D0C6"}
         >
-          {title}
+          {eventData.title}
         </chakra.h1>
 
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{ base: 5, lg: 8 }}>
           <StatsCard
             title={"Localização"}
-            stat={location}
+            stat={eventData.location}
             icon={<CiLocationOn size={"2em"} />}
           />
           <StatsCard
             title={"Data"}
-            stat={day}
+            stat={eventData.day}
             icon={<CiCalendarDate size={"2em"} />}
           />
           <StatsCard
             title={"Horario"}
-            stat={hour}
+            stat={eventData.hour}
             icon={<CiAlarmOn size={"2em"} />}
           />
         </SimpleGrid>
@@ -276,7 +291,7 @@ export default function EventDetails() {
             <TabPanel w="100%" p={0} style={{ padding: 2 }}>
               <SimpleGrid
                 columns={{ base: 1, md: 2, lg: 4 }}
-                spacing={{ base: 0, md: 0, lg: 6 }}
+                spacing={{ base: 2, md: 0, lg: 6 }}
               >
                 {requests.giveRide.length > 0 &&
                   requests.giveRide.map((request) => (
@@ -302,7 +317,9 @@ export default function EventDetails() {
                             color="#62D0C6"
                             mr={4}
                           >
-                            {vehicleIcons[request.vehicle].icon}
+                            {request.vehicle
+                              ? vehicleIcons[request.vehicle].icon
+                              : null}
                           </Box>
 
                           {/* Textos à direita */}
@@ -329,57 +346,58 @@ export default function EventDetails() {
             <TabPanel p={0} style={{ padding: 0 }}></TabPanel>
           </TabPanels>
 
-          <AlertDialog
-            isOpen={isOpenCard}
-            leastDestructiveRef={cancelRefCard}
-            onClose={onCloseCard}
-            isCentered
-          >
-            <AlertDialogOverlay>
-              <AlertDialogContent>
-                <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                  Oferecida por: {selected.user.name}
-                </AlertDialogHeader>
+          {selected && (
+            <AlertDialog
+              isOpen={isOpenCard}
+              leastDestructiveRef={cancelRefCard}
+              onClose={onCloseCard}
+              isCentered
+            >
+              <AlertDialogOverlay>
+                <AlertDialogContent>
+                  <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                    Oferecida por: {selected.user.name}
+                  </AlertDialogHeader>
 
-                <AlertDialogBody>
-                  <Flex align="center">
-                    {/* Ícone centralizado e grande */}
-                    <Box
-                      fontSize="3xl"
-                      textAlign="center"
-                      color="#62D0C6"
-                      mr={4}
-                    >
-                      {selected.vehicle
-                        ? vehicleIcons[selected.vehicle].icon
-                        : null}
-                    </Box>
+                  <AlertDialogBody>
+                    <Flex align="center">
+                      {/* Ícone centralizado e grande */}
+                      <Box
+                        fontSize="3xl"
+                        textAlign="center"
+                        color="#62D0C6"
+                        mr={4}
+                      >
+                        {selected.vehicle
+                          ? vehicleIcons[selected.vehicle].icon
+                          : null}
+                      </Box>
 
-                    {/* Textos à direita */}
-                    <VStack align="start" spacing={2}>
-                      <CardText>
-                        Veiculo:{" "}
-                        {selected.vehicle &&
-                          vehicleIcons[selected.vehicle].label}
-                      </CardText>
-                      <CardText>Vagas: {selected.vehicleVacancies}</CardText>
-                      <CardText>Saindo as: {selected.departureTime}</CardText>
-                      <CardText>Saindo de: {selected.boardingPlace}</CardText>
-                      <CardText>Passando por: {selected.passingBy}</CardText>
-                      {selected.ridePrice && (
+                      {/* Textos à direita */}
+                      <VStack align="start" spacing={2}>
                         <CardText>
-                          Contribuição pela carona: {selected.ridePrice}
+                          Veiculo:{" "}
+                          {selected.vehicle &&
+                            vehicleIcons[selected.vehicle].label}
                         </CardText>
-                      )}
-                    </VStack>
-                  </Flex>
-                </AlertDialogBody>
+                        <CardText>Vagas: {selected.vehicleVacancies}</CardText>
+                        <CardText>Saindo as: {selected.departureTime}</CardText>
+                        <CardText>Saindo de: {selected.boardingPlace}</CardText>
+                        <CardText>Passando por: {selected.passingBy}</CardText>
+                        {selected.ridePrice && (
+                          <CardText>
+                            Contribuição pela carona: {selected.ridePrice}
+                          </CardText>
+                        )}
+                      </VStack>
+                    </Flex>
+                  </AlertDialogBody>
 
-                <AlertDialogFooter>
-                  <Button ref={cancelRefCard} onClick={onCloseCard}>
-                    Fechar
-                  </Button>
-                  {/* <Button
+                  <AlertDialogFooter>
+                    <Button ref={cancelRefCard} onClick={onCloseCard}>
+                      Fechar
+                    </Button>
+                    {/* <Button
                     isLoading={isLoading}
                     bg="#62D0C6"
                     color={"white"}
@@ -387,10 +405,11 @@ export default function EventDetails() {
                   >
                     Continuar
                             </Button>*/}
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialogOverlay>
-          </AlertDialog>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialogOverlay>
+            </AlertDialog>
+          )}
         </Tabs>
       </Container>
     </Container>
