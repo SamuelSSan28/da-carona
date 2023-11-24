@@ -94,7 +94,7 @@ export default function Simple() {
               <MenuItem
                 onClick={() => {
                   localStorage.removeItem("token-daCarona");
-                  window.reload();
+                  window.location.reload(false);
                 }}
               >
                 Sair

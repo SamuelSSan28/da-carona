@@ -18,6 +18,7 @@ import {
 } from "@chakra-ui/react";
 import InputMask from "react-input-mask";
 import { createUserSchema } from "../../services/formValidation";
+import { useState } from "react";
 
 export default function SignUp({
   setStep,
@@ -26,11 +27,13 @@ export default function SignUp({
   handleValidatioStep,
 }) {
   const toast = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
   const submit = async () => {
     try {
+      setIsLoading(true);
       await createUserSchema.validate(form, { abortEarly: false });
-      handleValidatioStep();
+      await handleValidatioStep();
     } catch (error) {
       error.errors.forEach((message) => {
         toast({
@@ -41,6 +44,8 @@ export default function SignUp({
           isClosable: true,
         });
       });
+    }finally{
+      setIsLoading(false)
     }
   };
 
@@ -102,8 +107,9 @@ export default function SignUp({
 
             <Stack spacing={10} pt={2}>
               <Button
+                isLoading={isLoading}
                 onClick={submit}
-                loadingText="Submitting"
+                loadingText="Carregando"
                 size="lg"
                 bg={"#62D0C6"}
                 color={"white"}
