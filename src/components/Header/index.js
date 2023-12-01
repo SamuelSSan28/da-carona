@@ -23,8 +23,8 @@ import Logo from "../../assets/logo.png";
 
 const Links = [
   { label: "Eventos", url: "/events" },
-  { label: "outro link", url: "#" },
-  { label: "outro link", url: "#" },
+  // { label: "outro link", url: "#" },
+  // { label: "outro link", url: "#" },
 ];
 
 const NavLink = (props) => {
@@ -88,8 +88,8 @@ export default function Simple() {
               <Avatar size={"sm"} src={"https://i.imgur.com/MYTNMWl.pngw"} />
             </MenuButton>
             <MenuList>
-              <MenuItem>Conta</MenuItem>
-              <MenuItem>Meus Eventos</MenuItem>
+             {/* <MenuItem>Conta</MenuItem>*/}
+             {/* <MenuItem>Meus Eventos</MenuItem>*/}
               <MenuDivider />
               <MenuItem
                 onClick={() => {
