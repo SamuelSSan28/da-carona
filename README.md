@@ -65,3 +65,59 @@ Nesta view, nas próximas versões, a pessoa irá pedir carona.
 
 - Ao clicar em um botão de enviar, entrar, coisa assim, desabilitar o botão enquanto a ação acontece, para evitar do usuário clicar várias vezes, e apresentar algo indicando que está carregando
 - Ao fazer, testar sempre no formato mobile (pelo devtools) para garantir que ficou bom de usar pelo celular
+
+# Terceira versão (última)
+
+Chegou a hora do usuário poder pedir sua carona, e ter sua carona confirmada.
+
+**Pedindo carona:**
+
+Ao acessar os detalhes de um evento, ao ver ofertas de carona e tiver uma vaga sobrando, poder clicar em "pedir carona". 
+
+O usuário não poderá ver os outros que pediram carona, nem saber que outros pediram.
+
+Ao ter seu pedido de carona aceito, exibir na view de detalhe da carona um botão "Falar com caroneiro" que abre o whatsapp com o telefone do caroneiro, usando `https://api.whatsapp.com/send?phone=5532988735683&text=Obrigado%20pela%20carona!`.
+
+**Oferecendo carona:**
+
+Se a carona for do próprio usuário (ele oferecendo), não tem porque ele ter como pedir carona (pra ele mesmo).
+
+Ao abrir a carona que ofereceu, vê os nomes das pessoas que pediram carona e tem um botão "aceitar" em cada pessoa, um ícone de telefone com link para `tel:32988735683` do telefone da pessoa, e um ícone de whatsapp com link para `https://api.whatsapp.com/send?phone=5532988735683&text=Sobre%20seu%20pedido%20de%20carona.`
+
+Ao aceitar a carona, o registro do pedido de carona daquele usuário fica marcado como confirmada, e o número de vagas na carona diminui.
+
+Ao aceitar o máximo de caronas que cabe no carro, não deixar mais aceitar caronas.
+
+- Pedir carona para um evento
+- Enviar notificações
+
+## Notificações
+
+As pessoas precisam saber que o que está acontecendo.
+
+Para enviar notificações, você precisará pedir permissão para o usuário de receber notificações, obter o token no navegador do usuário, enviar esse token para o firestore e salvar no objeto `user` lá. Este token é o "endereço" de notificações dele.
+
+Se o usuário não der permissão para receber as notificações, ele não terá como usar o app. Então não saia da página de pedido permissão enquanto ele não der.
+
+Uma forma de testar o envio das notifações entre usuário é usar dois navegadores (chrome/firefox por exemplo), um com um usuário oferecendo caronas, e outro com um usuário pedindo caronas.
+
+Você pode fazer o envio usando cloud function (mais difícil, não recomendo), ou apenas obter o token do usuário para o qual deseja enviar (pelo front), e enviar.
+
+**Dono da carona recebe notificações quando:**
+- Quando alguém pede carona
+
+**Quem pede carona recebe notificações quando:**
+- Quando sua carona é confirmada
+- Quando todas as caronas de um carro forem aceitas, e o usuário não foi aceito, receber "Carro cheio"
+
+👉 Todas notificações vão com link para página de detalhe da carona em questão.
+
+## Algo mais
+
+- Em cada carona oferecida, vir o nome da pessoa que está oferecendo
+
+# Próximas versões
+
+- Ao oferecer carona, ter a placa/cor/modelo do automóvel
+- Pedir carona para o evento, sem escolher uma pessoa específica
+- Ter como a pessoa cancelar a carona oferecida, e também cancelar pedido de carona
