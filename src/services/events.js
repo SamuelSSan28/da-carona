@@ -53,11 +53,11 @@ const getEvents = async () => {
       hour,
     };
   });
- 
+
   return eventsList;
 };
 
-const updateArrayFieldEvent =async (documentId, newElement,field) => {
+const updateArrayFieldEvent = async (documentId, newElement, field) => {
   const docRef = doc(firestore, "events", documentId);
 
   // Verifica se o documento já existe
@@ -67,9 +67,8 @@ const updateArrayFieldEvent =async (documentId, newElement,field) => {
     await updateDoc(docRef, {
       [field]: arrayUnion(newElement),
     });
-
   } else {
-    console.error('Documento não encontrado.');
+    console.error("Documento não encontrado.");
   }
 };
 
@@ -86,4 +85,49 @@ const getEvent = async (eventId) => {
     return {};
   }
 };
-export { createEvent, getEvents, updateArrayFieldEvent, getEvent };
+
+const requestOneRide = async (documentId, index, newValue) => {
+  const docRef = doc(firestore, "events", documentId);
+
+  // Verifica se o documento já existe
+  const documentSnapshot = await getDoc(docRef);
+
+  if (documentSnapshot.exists()) {
+    const currentData = documentSnapshot.data();
+
+    // Verifica se o novo elemento já existe no campo com base no campo "id"
+    const elementWithSameId = currentData?.giveRideRequests?.[index]?.requests?.find(
+      (element) => element.id === newValue.id
+    );
+
+    if (elementWithSameId) {
+      throw new Error(
+        "Elemento com o mesmo id já existe. Não pode ser adicionado novamente."
+      );
+    }
+
+    // Cria uma cópia do array existente
+    const existingRequests = [...(currentData.giveRideRequests[index]?.requests || [])];
+
+    // Adiciona o novo valor à cópia do array
+    existingRequests.push(newValue);
+
+    // Atualiza o documento no Firebase
+    const updatedData = { ...currentData };
+    updatedData.giveRideRequests[index].requests = existingRequests;
+
+    await setDoc(docRef, updatedData);
+  } else {
+    console.error("Documento não encontrado.");
+  }
+};
+
+
+
+export {
+  createEvent,
+  getEvents,
+  updateArrayFieldEvent,
+  getEvent,
+  requestOneRide,
+};

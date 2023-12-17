@@ -18,29 +18,39 @@ import {
   AlertDialogFooter,
   AlertDialogBody,
   Stack,
-  Tabs,
-  TabList,
-  Tab,
-  TabPanel,
-  TabPanels,
   VStack,
+  Heading,
+} from "@chakra-ui/react";
+
+import {
+  Table,
+  Thead,
+  Tbody,
+  Tfoot,
+  Tr,
+  Th,
+  Td,
+  TableCaption,
+  TableContainer,
 } from "@chakra-ui/react";
 import { CiLocationOn, CiCalendarDate, CiAlarmOn } from "react-icons/ci";
 import { useLocation } from "react-router-dom";
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import GiveRideForm from "./giveRideForm";
-import { getEvent, updateArrayFieldEvent } from "../../services/events";
+import {
+  getEvent,
+  requestOneRide,
+  updateArrayFieldEvent,
+} from "../../services/events";
 import { updateVehicle } from "../../services/user";
 import { giveRideSchema } from "../../services/formValidation";
 import { UserContext } from "../../context/user";
-import {
-  Card,
-  CardContent,
-  CardText,
-} from "../../components/EventCard";
+import { Card, CardContent, CardText } from "../../components/EventCard";
 import { useRef } from "react";
 import { useEffect } from "react";
 import vehicleIcons from "./icons";
+import { PhoneIcon } from "@chakra-ui/icons";
+import { FaWhatsapp } from "react-icons/fa";
 
 function StatsCard(props) {
   const { title, stat, icon } = props;
@@ -105,6 +115,46 @@ export default function EventDetails() {
   const cancelRefGiveRide = useRef();
   const cancelRefCard = useRef();
 
+  const isUserInRequests = useMemo(() => {
+    if (selected && selected.requests)
+      return selected.requests.some((request) => request.user.id === user.id);
+
+    return false;
+  }, [selected, user, isRefresh]);
+
+  const isUserRequestsAcepted = useMemo(() => {
+    if (selected && selected.requests)
+      return selected.requests.some(
+        (request) => request.user.id === user.id && request.status === "acepted"
+      );
+
+    return false;
+  }, [selected, isRefresh]);
+
+  const currentContactLink = (phone, type) => {
+    if (type == 0)
+      return `https://api.whatsapp.com/send?phone=+55${phone
+        .replace("(", "")
+        .replace(")", "")}&text=Obrigado%20pela%20carona!`;
+
+    return `tel:${phone.replace("(", "").replace(")", "")}`;
+  };
+
+  const contactLinkDriver = useMemo(() => {
+    if (eventData && eventData.user) {
+      const phone = eventData.user.phone || "";
+      return {
+        zap: `https://api.whatsapp.com/send?phone=+55${phone
+          .replace("(", "")
+          .replace(")", "")}&text=Obrigado%20pela%20carona!`,
+        tell: `tel:${phone.replace("(", "").replace(")", "")}`,
+      };
+    }
+    return {
+      zap: "/",
+    };
+  }, [eventData]);
+
   const onChange = (event) => {
     setForm({
       ...form,
@@ -118,7 +168,7 @@ export default function EventDetails() {
       await giveRideSchema.validate(form, { abortEarly: false });
       await updateArrayFieldEvent(
         eventData.id,
-        { ...form, user },
+        { ...form, user, vehicleVacanciesRequested: 0, requests: [] },
         "giveRideRequests"
       );
       //pegar user id do contexto
@@ -137,9 +187,45 @@ export default function EventDetails() {
       });
       onCloseGiveRide();
     } catch (error) {
+      console.log(error);
       error?.errors?.forEach((message) => {
         toast({
           title: "Erro de validação",
+          description: message,
+          status: "error",
+          duration: 2000,
+          isClosable: true,
+        });
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const reqestRide = async (index) => {
+    try {
+      setIsLoading(true);
+
+      await requestOneRide(eventData.id, index, {
+        user: user,
+        status: "requested",
+      });
+
+      setIsRefresh(!isRefresh);
+      toast({
+        title: "Carona solicitada com sucesso!",
+        status: "success",
+        duration: 9000,
+        isClosable: true,
+        position: "bottom",
+      });
+
+      onCloseCard();
+    } catch (error) {
+      console.log(error);
+      error?.errors?.forEach((message) => {
+        toast({
+          title: "Erro na solicitação",
           description: message,
           status: "error",
           duration: 2000,
@@ -159,7 +245,7 @@ export default function EventDetails() {
           ...requests,
           giveRide: event_.giveRideRequests || [],
         });
-       
+
         if (!event) {
           setEventData(event_);
         }
@@ -171,11 +257,11 @@ export default function EventDetails() {
     };
 
     fetchData();
-    if(user && !isRefresh){
+    if (user && !isRefresh) {
       setForm({
         vehicle: user.vehicle,
         vehicleVacancies: user.vehicleVacancies,
-      })
+      });
     }
   }, [isRefresh, user]);
   return (
@@ -260,157 +346,194 @@ export default function EventDetails() {
               </AlertDialogOverlay>
             </AlertDialog>
           </>
-
-          {/* <Button bg={"#62D0C6"} color="white" _hover={{ bg: "#81d9d1" }} m={4}>
-            Pedir Carona
-  </Button>*/}
         </Flex>
       </Box>
 
       <Container maxW={"full"} py={12} pt={0} as={Stack} spacing={12}>
-        <Tabs w="100%" variant="enclosed" colorScheme="green">
-          <TabList mb="1em">
-            <Tab
-              flex="1"
-              textAlign="center"
-              _selected={{ color: "white", bg: "#62D0C6" }}
-              border="0.1rem solid #62D0C6"
-            >
-              Pedir Carona
-            </Tab>
-            <Tab
-              flex="1"
-              textAlign="center"
-              _selected={{ color: "white", bg: "#62D0C6" }}
-              border="0.1rem solid #62D0C6"
-            >
-              Dar Carona
-            </Tab>
-          </TabList>
-          <TabPanels w="100%" p={0}>
-            <TabPanel w="100%" p={0} style={{ padding: 2 }}>
-              <SimpleGrid
-                columns={{ base: 1, md: 2, lg: 4 }}
-                spacing={{ base: 2, md: 0, lg: 6 }}
+        <Stack spacing={0} align={"left"}>
+          <Heading size="lg">Caronas:</Heading>
+        </Stack>
+
+        <SimpleGrid
+          columns={{ base: 1, md: 2, lg: 4 }}
+          spacing={{ base: 2, md: 0, lg: 6 }}
+        >
+          {requests.giveRide.length > 0 &&
+            requests.giveRide.map((request, index) => (
+              <Card
+                key={request.id}
+                h={"150px"}
+                onClick={(e) => {
+                  onOpenCard();
+                  setSelected({ ...request, index });
+                }}
               >
-                {requests.giveRide.length > 0 &&
-                  requests.giveRide.map((request) => (
-                    <Card
-                      key={request.id}
-                      h={"150px"}
-                      onClick={(e) => {
-                        onOpenCard();
-                        setSelected(request);
-                      }}
+                <CardContent
+                  align={"left"}
+                  _hover={{
+                    border: "2px solid #81d9d1",
+                  }}
+                >
+                  <Flex align="center">
+                    {/* Ícone centralizado e grande */}
+                    <Box
+                      fontSize="3xl"
+                      textAlign="center"
+                      color="#62D0C6"
+                      mr={4}
                     >
-                      <CardContent
-                        align={"left"}
-                        _hover={{
-                          border: "2px solid #81d9d1",
-                        }}
-                      >
-                        <Flex align="center">
-                          {/* Ícone centralizado e grande */}
-                          <Box
-                            fontSize="3xl"
-                            textAlign="center"
-                            color="#62D0C6"
-                            mr={4}
-                          >
-                            {request.vehicle
-                              ? vehicleIcons[request.vehicle].icon
-                              : null}
-                          </Box>
+                      {request.vehicle
+                        ? vehicleIcons[request.vehicle].icon
+                        : null}
+                    </Box>
 
-                          {/* Textos à direita */}
-                          <VStack align="start" spacing={2}>
-                            <CardText>
-                              Vagas: {request.vehicleVacancies}
-                            </CardText>
-                            <CardText>
-                              Saindo as: {request.departureTime}
-                            </CardText>
-                            <CardText>
-                              {request.ridePrice
-                                ? `Contribuição pela carona: ${request.ridePrice} `
-                                : ""}
-                              &nbsp;
-                            </CardText>
-                          </VStack>
-                        </Flex>
-                      </CardContent>
-                    </Card>
-                  ))}
-              </SimpleGrid>
-            </TabPanel>
-            <TabPanel p={0} style={{ padding: 0 }}></TabPanel>
-          </TabPanels>
+                    {/* Textos à direita */}
+                    <VStack align="start" spacing={2}>
+                      <CardText>Vagas: {request.vehicleVacancies}</CardText>
+                      <CardText>Saindo as: {request.departureTime}</CardText>
+                      <CardText>
+                        {request.ridePrice
+                          ? `Contribuição pela carona: ${request.ridePrice} `
+                          : ""}
+                        &nbsp;
+                      </CardText>
+                    </VStack>
+                  </Flex>
+                </CardContent>
+              </Card>
+            ))}
+        </SimpleGrid>
 
-          {selected && (
-            <AlertDialog
-              isOpen={isOpenCard}
-              leastDestructiveRef={cancelRefCard}
-              onClose={onCloseCard}
-              isCentered
-            >
-              <AlertDialogOverlay>
-                <AlertDialogContent>
-                  <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                    Oferecida por: {selected.user.name}
-                  </AlertDialogHeader>
+        {selected && (
+          <AlertDialog
+            isOpen={isOpenCard}
+            leastDestructiveRef={cancelRefCard}
+            onClose={onCloseCard}
+            isCentered
+          >
+            <AlertDialogOverlay>
+              <AlertDialogContent minWidth={{ lg: 550, md: "50%" }}>
+                <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                  Oferecida por: {selected.user.name}
+                </AlertDialogHeader>
 
-                  <AlertDialogBody>
-                    <Flex align="center">
-                      {/* Ícone centralizado e grande */}
-                      <Box
-                        fontSize="3xl"
-                        textAlign="center"
-                        color="#62D0C6"
-                        mr={4}
-                      >
-                        {selected.vehicle
-                          ? vehicleIcons[selected.vehicle].icon
-                          : null}
-                      </Box>
+                <AlertDialogBody>
+                  <Flex align="center">
+                    <Box
+                      fontSize="3xl"
+                      textAlign="center"
+                      color="#62D0C6"
+                      mr={4}
+                    >
+                      {selected.vehicle
+                        ? vehicleIcons[selected.vehicle].icon
+                        : null}
+                    </Box>
 
-                      {/* Textos à direita */}
-                      <VStack align="start" spacing={2}>
+                    {/* Textos à direita */}
+                    <VStack align="start" spacing={1}>
+                      <CardText>
+                        Veiculo:{" "}
+                        {selected.vehicle &&
+                          vehicleIcons[selected.vehicle].label}
+                      </CardText>
+                      <CardText>Vagas: {selected.vehicleVacancies}</CardText>
+                      <CardText>Saindo as: {selected.departureTime}</CardText>
+                      <CardText>Saindo de: {selected.boardingPlace}</CardText>
+                      <CardText>Passando por: {selected.passingBy}</CardText>
+                      {selected.ridePrice && (
                         <CardText>
-                          Veiculo:{" "}
-                          {selected.vehicle &&
-                            vehicleIcons[selected.vehicle].label}
+                          Contribuição pela carona: {selected.ridePrice}
                         </CardText>
-                        <CardText>Vagas: {selected.vehicleVacancies}</CardText>
-                        <CardText>Saindo as: {selected.departureTime}</CardText>
-                        <CardText>Saindo de: {selected.boardingPlace}</CardText>
-                        <CardText>Passando por: {selected.passingBy}</CardText>
-                        {selected.ridePrice && (
-                          <CardText>
-                            Contribuição pela carona: {selected.ridePrice}
-                          </CardText>
-                        )}
-                      </VStack>
-                    </Flex>
-                  </AlertDialogBody>
+                      )}
+                    </VStack>
+                  </Flex>
 
-                  <AlertDialogFooter>
-                    <Button ref={cancelRefCard} onClick={onCloseCard}>
-                      Fechar
+                  {selected.user.id === user.id && selected.requests && (
+                    <TableContainer m={2}>
+                      <Table variant="simple">
+                        <Thead>
+                          <Tr>
+                            <Th>Solicitante</Th>
+                            <Th>Ação</Th>
+                          </Tr>
+                        </Thead>
+                        <Tbody>
+                          {selected.requests.map((r, index) => (
+                            <Tr>
+                              <Td> {r.user.name}</Td>
+                              <Td>
+                                <Button marginRight={5}>Aceitar</Button>
+                                <Button
+                                  marginRight={5}
+                                  as="a"
+                                  target="_blank"
+                                  href={currentContactLink(r.user.phone, 1)}
+                                >
+                                  {" "}
+                                  <PhoneIcon />{" "}
+                                </Button>
+                                <Button
+                                  marginRight={5}
+                                  as="a"
+                                  target="_blank"
+                                  href={currentContactLink(r.user.phone, 0)}
+                                >
+                                  {" "}
+                                  <FaWhatsapp />{" "}
+                                </Button>
+                              </Td>
+                            </Tr>
+                          ))}
+                        </Tbody>
+                      </Table>
+                    </TableContainer>
+                  )}
+                </AlertDialogBody>
+
+                <AlertDialogFooter>
+                  <Button ref={cancelRefCard} onClick={onCloseCard}>
+                    Fechar
+                  </Button>
+
+                  {selected.user.id != user.id && !isUserInRequests && (
+                    <Button
+                      isLoading={isLoading}
+                      bg="#62D0C6"
+                      color={"white"}
+                      ml={3}
+                      _hover={{
+                        bg: "#81d9d1",
+                      }}
+                      onClick={(e) => reqestRide(selected.index)}
+                    >
+                      Solicitar Carona
                     </Button>
-                    {/* <Button
-                    isLoading={isLoading}
-                    bg="#62D0C6"
-                    color={"white"}
-                    ml={3}
-                  >
-                    Continuar
-                            </Button>*/}
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialogOverlay>
-            </AlertDialog>
-          )}
-        </Tabs>
+                  )}
+
+                  {selected.user.id != user.id && isUserInRequests && (
+                    <Button
+                      bg="#62D0C6"
+                      color={"white"}
+                      ml={3}
+                      _hover={{
+                        bg: "#81d9d1",
+                      }}
+                      as={isUserRequestsAcepted ? "a" : null}
+                      href={contactLinkDriver.zap}
+                      target="_blank"
+                      isLoading={!isUserRequestsAcepted}
+                      loadingText="Aguardando aceite .."
+                      spinner={null}
+                    >
+                      Falar com caroneiro
+                    </Button>
+                  )}
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialogOverlay>
+          </AlertDialog>
+        )}
       </Container>
     </Container>
   );

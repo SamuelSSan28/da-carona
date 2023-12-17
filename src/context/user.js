@@ -17,10 +17,16 @@ const UserProvider = ({ children }) => {
     //puxar dados do usuário aqui e setar no state
     const fetchData = async () => {
       try {
+        if(!storedToken) return;
         const userData = await getUser(storedToken);
-        setUser({ id: storedToken, ...userData });
+
+        if(userData)
+          setUser({ id: storedToken, ...userData });
+        else{
+          localStorage.setItem("token-daCarona", null);
+        }
       } catch (error) {
-        console.error("Erro ao atualizar os dados dos usuários:", error);
+        console.error("Erro ao buscar  os dados dos usuários:", error);
       }
     };
 
