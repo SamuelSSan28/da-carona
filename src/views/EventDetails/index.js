@@ -26,11 +26,9 @@ import {
   Table,
   Thead,
   Tbody,
-  Tfoot,
   Tr,
   Th,
   Td,
-  TableCaption,
   TableContainer,
 } from "@chakra-ui/react";
 import { CiLocationOn, CiCalendarDate, CiAlarmOn } from "react-icons/ci";
@@ -38,6 +36,7 @@ import { useLocation } from "react-router-dom";
 import { useContext, useMemo, useState } from "react";
 import GiveRideForm from "./giveRideForm";
 import {
+  aceptOneRideRequest,
   getEvent,
   requestOneRide,
   updateArrayFieldEvent,
@@ -50,7 +49,7 @@ import { useRef } from "react";
 import { useEffect } from "react";
 import vehicleIcons from "./icons";
 import { PhoneIcon } from "@chakra-ui/icons";
-import { FaWhatsapp } from "react-icons/fa";
+import { FaCheckCircle, FaWhatsapp } from "react-icons/fa";
 
 function StatsCard(props) {
   const { title, stat, icon } = props;
@@ -120,7 +119,7 @@ export default function EventDetails() {
       return selected.requests.some((request) => request.user.id === user.id);
 
     return false;
-  }, [selected, user, isRefresh]);
+  }, [selected, user]);
 
   const isUserRequestsAcepted = useMemo(() => {
     if (selected && selected.requests)
@@ -129,7 +128,14 @@ export default function EventDetails() {
       );
 
     return false;
-  }, [selected, isRefresh]);
+  }, [selected]);
+
+  const quantRequestsAcepted = (request) => {
+    if (request)
+      return request.filter((request) => request.status === "approved").length;
+
+    return 0;
+  };
 
   const currentContactLink = (phone, type) => {
     if (type == 0)
@@ -202,7 +208,7 @@ export default function EventDetails() {
     }
   };
 
-  const reqestRide = async (index) => {
+  const requestRide = async (index) => {
     try {
       setIsLoading(true);
 
@@ -237,14 +243,73 @@ export default function EventDetails() {
     }
   };
 
+  const aceptRequestRide = async (index, rIndex) => {
+    try {
+      setIsLoading(true);
+
+      if (
+        selected.vehicleVacancies - quantRequestsAcepted(selected.requests) ==
+        0
+      ) {
+        return toast({
+          title: "VEICULO NÃO POSSUI MAIS VAGAS!",
+          status: "error",
+          duration: 2000,
+          isClosable: true,
+        });
+      }
+
+      const giveRideRequests = eventData.giveRideRequests;
+      giveRideRequests[index].requests[rIndex].status = "approved";
+
+      setEventData({
+        ...eventData,
+        giveRideRequests,
+      });
+
+      setSelected(giveRideRequests[index]);
+
+      await aceptOneRideRequest(
+        eventData.id,
+        index,
+        {
+          user: user,
+          status: "approved",
+        },
+        rIndex
+      );
+
+      setIsRefresh(!isRefresh);
+      toast({
+        title: "Carona aceita com sucesso!",
+        status: "success",
+        duration: 9000,
+        isClosable: true,
+        position: "bottom",
+      });
+    } catch (error) {
+      console.log(error);
+
+      error?.errors?.forEach((message) => {
+        toast({
+          title: "Erro na solicitação",
+          description: message,
+          status: "error",
+          duration: 2000,
+          isClosable: true,
+        });
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const event_ = await getEvent(eventData.id);
-        setRequests({
-          ...requests,
-          giveRide: event_.giveRideRequests || [],
-        });
+
+        setRequests(event_.giveRideRequests);
 
         if (!event) {
           setEventData(event_);
@@ -264,6 +329,7 @@ export default function EventDetails() {
       });
     }
   }, [isRefresh, user]);
+
   return (
     <Container maxW="100%">
       <Box maxW="7xl" mx={"auto"} px={{ base: 2, sm: 12, md: 17 }}>
@@ -358,8 +424,8 @@ export default function EventDetails() {
           columns={{ base: 1, md: 2, lg: 4 }}
           spacing={{ base: 2, md: 0, lg: 6 }}
         >
-          {requests.giveRide.length > 0 &&
-            requests.giveRide.map((request, index) => (
+          {requests.length > 0 &&
+            requests.map((request, index) => (
               <Card
                 key={request.id}
                 h={"150px"}
@@ -389,11 +455,15 @@ export default function EventDetails() {
 
                     {/* Textos à direita */}
                     <VStack align="start" spacing={2}>
-                      <CardText>Vagas: {request.vehicleVacancies}</CardText>
+                      <CardText>
+                        Vagas:{" "}
+                        {request.vehicleVacancies -
+                          quantRequestsAcepted(request.requests)}
+                      </CardText>
                       <CardText>Saindo as: {request.departureTime}</CardText>
                       <CardText>
                         {request.ridePrice
-                          ? `Contribuição pela carona: ${request.ridePrice} `
+                          ? `Contribuição: ${request.ridePrice} `
                           : ""}
                         &nbsp;
                       </CardText>
@@ -412,7 +482,7 @@ export default function EventDetails() {
             isCentered
           >
             <AlertDialogOverlay>
-              <AlertDialogContent minWidth={{ lg: 550, md: "50%" }}>
+              <AlertDialogContent minWidth={{ lg: 650, md: "50%" }}>
                 <AlertDialogHeader fontSize="lg" fontWeight="bold">
                   Oferecida por: {selected.user.name}
                 </AlertDialogHeader>
@@ -431,20 +501,22 @@ export default function EventDetails() {
                     </Box>
 
                     {/* Textos à direita */}
-                    <VStack align="start" spacing={1}>
+                    <VStack align="start" spacing={2}>
                       <CardText>
                         Veiculo:{" "}
                         {selected.vehicle &&
                           vehicleIcons[selected.vehicle].label}
                       </CardText>
-                      <CardText>Vagas: {selected.vehicleVacancies}</CardText>
+                      <CardText>
+                        Vagas:{" "}
+                        {selected.vehicleVacancies -
+                          quantRequestsAcepted(selected.requests)}
+                      </CardText>
                       <CardText>Saindo as: {selected.departureTime}</CardText>
                       <CardText>Saindo de: {selected.boardingPlace}</CardText>
                       <CardText>Passando por: {selected.passingBy}</CardText>
                       {selected.ridePrice && (
-                        <CardText>
-                          Contribuição pela carona: {selected.ridePrice}
-                        </CardText>
+                        <CardText>Contribuição: {selected.ridePrice}</CardText>
                       )}
                     </VStack>
                   </Flex>
@@ -456,6 +528,7 @@ export default function EventDetails() {
                           <Tr>
                             <Th>Solicitante</Th>
                             <Th>Ação</Th>
+                            <Th>Contato</Th>
                           </Tr>
                         </Thead>
                         <Tbody>
@@ -463,24 +536,41 @@ export default function EventDetails() {
                             <Tr>
                               <Td> {r.user.name}</Td>
                               <Td>
-                                <Button marginRight={5}>Aceitar</Button>
+                                {r.status == "requested" ? (
+                                  <Button
+                                    isLoading={isLoading}
+                                    onClick={(e) =>
+                                      aceptRequestRide(selected.index, index)
+                                    }
+                                  >
+                                    Aceitar
+                                  </Button>
+                                ) : (
+                                  <Flex>
+                                    Confirmada{" "}
+                                    <FaCheckCircle
+                                      color="green"
+                                      style={{ marginLeft: 4, marginTop: 2 }}
+                                    />
+                                  </Flex>
+                                )}
+                              </Td>
+
+                              <Td>
                                 <Button
                                   marginRight={5}
                                   as="a"
                                   target="_blank"
                                   href={currentContactLink(r.user.phone, 1)}
                                 >
-                                  {" "}
-                                  <PhoneIcon />{" "}
+                                  <PhoneIcon color="black" />
                                 </Button>
                                 <Button
-                                  marginRight={5}
                                   as="a"
                                   target="_blank"
                                   href={currentContactLink(r.user.phone, 0)}
                                 >
-                                  {" "}
-                                  <FaWhatsapp />{" "}
+                                  <FaWhatsapp color="green" />
                                 </Button>
                               </Td>
                             </Tr>
@@ -505,7 +595,7 @@ export default function EventDetails() {
                       _hover={{
                         bg: "#81d9d1",
                       }}
-                      onClick={(e) => reqestRide(selected.index)}
+                      onClick={(e) => requestRide(selected.index)}
                     >
                       Solicitar Carona
                     </Button>
