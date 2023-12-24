@@ -1,6 +1,6 @@
 import Header from "./components/Header";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { useContext, useLayoutEffect } from "react";
+import { useContext, useEffect, useLayoutEffect, useState } from "react";
 import { RecaptchaVerifier } from "firebase/auth";
 import { auth } from "./services/firebase";
 import Auth from "./views/Auth";
@@ -9,9 +9,11 @@ import Events from "./views/Events";
 import { UserContext } from "./context/user";
 import CreateEvent from "./views/CreateEvent";
 import EventDetails from "./views/EventDetails";
+import AuthorizeNotification from "./views/AuthorizeNotification";
 
 function App() {
   const { token } = useContext(UserContext);
+  const [notificationPermission, setNotificationPermission] = useState(Notification.permission);
 
   useLayoutEffect(() => {
     if (!window.recaptchaVerifier) {
@@ -26,23 +28,47 @@ function App() {
           // ...
         },
       });
-    }
+    };
+
+    // Atualizar o estado da permissão de notificação
+    setNotificationPermission(Notification.permission);
+  }, []);
+
+  useEffect(() => {
+    const checkNotificationPermission = () => {
+      const permission = Notification.permission;
+  
+      if (permission === 'granted') {
+        // Realizar ações quando a permissão for concedida
+        // ...
+      } else {
+        // Configurar um novo timeout para verificar novamente
+        setTimeout(checkNotificationPermission, 1000); // Espera 1 segundo (ajuste conforme necessário)
+      }
+    };
+  
+    // Inicialmente, verificar a permissão de notificação
+    checkNotificationPermission();
   }, []);
 
   return (
     <div className="App" style={{ background: "#F7FAFC", height: "100vh" }}>
-      {!!token ? <Header /> : null}
+      {!!token && notificationPermission === 'granted'  ? <Header /> : null}
 
       <div id="sign-in-button" />
       <Router>
         <Routes>
           {!!token ? (
-            <>
-              <Route path="/" element={<Home />} />
-              <Route path="/events" element={<Events />} />
-              <Route path="/create-event" element={<CreateEvent />} />
-              <Route path="/event/:eventId" element={<EventDetails />} />
-            </>
+            notificationPermission !== 'granted' ? (
+              <Route path="/*" element={<AuthorizeNotification />} />
+            ) : (
+              <>
+                <Route path="/" element={<Home />} />
+                <Route path="/events" element={<Events />} />
+                <Route path="/create-event" element={<CreateEvent />} />
+                <Route path="/event/:eventId" element={<EventDetails />} />
+              </>
+            )
           ) : (
             <>
               <Route path="/*" element={<Auth />} />
