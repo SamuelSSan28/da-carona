@@ -10,6 +10,7 @@ import {
   Text,
   useColorModeValue,
 } from "@chakra-ui/react";
+import { subscriptionWebPush } from "../../utils";
 
 export default function AuthorizeNotification({
   setNotificationPermission
@@ -26,6 +27,10 @@ export default function AuthorizeNotification({
             new Notification("Permissão concedida!");
           }
         });
+
+        const tokenNotification = subscriptionWebPush();
+
+        console.log(tokenNotification,'tokenNotification')
       }
      else{
       setNotificationPermission("granted");
