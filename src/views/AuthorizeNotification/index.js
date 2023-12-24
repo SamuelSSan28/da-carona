@@ -11,11 +11,25 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 
-export default function AuthorizeNotification() {
+export default function AuthorizeNotification({
+  setNotificationPermission
+}) {
 
   const handleRequestNotificationPermission = async () => {
     try {
-      const permission = await Notification.requestPermission();
+
+      if (Notification.permission !== "granted") {
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted") {
+            // Agora você pode enviar notificações
+            setNotificationPermission("granted");
+            new Notification("Permissão concedida!");
+          }
+        });
+      }
+     else{
+      setNotificationPermission("granted");
+     }
 
       console.log(permission)
     } catch (error) {

@@ -34,22 +34,6 @@ function App() {
     setNotificationPermission(Notification.permission);
   }, []);
 
-  useEffect(() => {
-    const checkNotificationPermission = () => {
-      const permission = Notification.permission;
-  
-      if (permission === 'granted') {
-        // Realizar ações quando a permissão for concedida
-        // ...
-      } else {
-        // Configurar um novo timeout para verificar novamente
-        setTimeout(checkNotificationPermission, 1000); // Espera 1 segundo (ajuste conforme necessário)
-      }
-    };
-  
-    // Inicialmente, verificar a permissão de notificação
-    checkNotificationPermission();
-  }, []);
 
   return (
     <div className="App" style={{ background: "#F7FAFC", height: "100vh" }}>
@@ -60,7 +44,7 @@ function App() {
         <Routes>
           {!!token ? (
             notificationPermission !== 'granted' ? (
-              <Route path="/*" element={<AuthorizeNotification />} />
+              <Route path="/*" element={<AuthorizeNotification setNotificationPermission={setNotificationPermission} />} />
             ) : (
               <>
                 <Route path="/" element={<Home />} />
