@@ -30,8 +30,6 @@ export default function AuthorizeNotification({
      else{
       setNotificationPermission("granted");
      }
-
-      console.log(permission)
     } catch (error) {
       console.error("Erro ao solicitar permissão de notificação:", error);
     }
